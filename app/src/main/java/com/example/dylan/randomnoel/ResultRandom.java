@@ -1,0 +1,274 @@
+package com.example.dylan.randomnoel;
+
+import android.Manifest;
+import android.app.Activity;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.telephony.SmsManager;
+import android.util.Log;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.TreeMap;
+
+/**
+ * Created by Dylan on 09/04/2017.
+ */
+public class ResultRandom extends AppCompatActivity
+{
+    private ListView lv;
+    private MonAdapterRandom monAdapter;
+    private HashMap<Nom,Nom> association;
+    private HashMap<Nom,Integer> nomsCouleurs;
+    private TextView titre;
+
+    private static final int MY_PERMISSION_REQUEST_CODE_SEND_SMS = 1;
+
+    public ArrayList<Nom> choixPossible(HashMap<Nom,Integer> noms, Integer groupe){
+        ArrayList<Nom> result = new ArrayList<>();
+
+        Iterator it = noms.entrySet().iterator();
+        while(it.hasNext()){
+            Map.Entry mapentry = (Map.Entry) it.next();
+            Nom n = (Nom) mapentry.getKey();
+            Integer i = (Integer) mapentry.getValue();
+            if(!i.equals(groupe))
+                result.add(n);
+        }
+
+        return result;
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_random);
+
+        titre = (TextView) findViewById(R.id.titre);
+        titre.setTextSize(50);
+
+        if(savedInstanceState != null){
+            association = (HashMap<Nom,Nom>)savedInstanceState.getSerializable("listeNoms");
+            nomsCouleurs = (HashMap<Nom,Integer>)savedInstanceState.getSerializable("listeCouleurs");
+            monAdapter = new MonAdapterRandom(association,nomsCouleurs);
+            lv = (ListView) findViewById(R.id.listeNomsAssocies);
+            lv.setAdapter(monAdapter);
+        }
+        else {
+            // contient la liste des noms associés aux groupe
+            HashMap<Nom, Integer> listeNoms = (HashMap<Nom, Integer>) getIntent().getSerializableExtra("listeNoms");
+
+            //contient l'association groupe <--> couleur
+            HashMap<Integer, Integer> listeCouleurs = (HashMap<Integer, Integer>) getIntent().getSerializableExtra("couleurs");
+
+            // on les trie par groupe (car ils ne le sont pas)
+            HashMap<Nom, Integer> listeNomsTries = new LinkedHashMap<>();
+            listeNomsTries.putAll(listeNoms);
+
+            // tri
+            Comparator<Integer> valueComparator = new Comparator<Integer>() {
+                @Override
+                public int compare(Integer s1, Integer s2) {
+                    if (s1 >= s2) return 1;
+                    else return -1;
+                }
+            };
+            MapValueComparator<Nom, Integer> mapComparator = new MapValueComparator<>(listeNomsTries, valueComparator);
+            Map<Nom, Integer> sortedOnValuesMap = new TreeMap<>(mapComparator);
+            sortedOnValuesMap.putAll(listeNoms);
+            listeNomsTries.clear();
+            listeNomsTries.putAll(sortedOnValuesMap);
+
+            // on ajoute aussi les noms ici pour savoir quels sont les noms qu'ils restent à associer
+            HashMap<Nom, Integer> listeNomsAAssocies = new LinkedHashMap<>();
+            listeNomsAAssocies.putAll(listeNomsTries);
+
+            // association des noms
+            association = new LinkedHashMap<>();
+
+            nomsCouleurs = new LinkedHashMap<>();
+            for (Map.Entry mapentry : listeNomsTries.entrySet()) {
+                Nom n = (Nom) mapentry.getKey();
+                Integer g = (Integer) mapentry.getValue();
+                Integer c = listeCouleurs.get(g); // on a la couleur en fonction du groupe
+                nomsCouleurs.put(n, c);
+            }
+
+            // instanciation de la vue correspondant à la liste des associations des prénoms
+            lv = (ListView) findViewById(R.id.listeNomsAssocies);
+            monAdapter = new MonAdapterRandom(association, nomsCouleurs);
+            lv.setAdapter(monAdapter);
+
+            try {
+                // on itère sur chacune des personnes pour les associer à quelqu'un
+                Iterator it = listeNomsTries.entrySet().iterator();
+                while (it.hasNext()) {
+                    Map.Entry mapentry = (Map.Entry) it.next();
+                    Nom n = (Nom) mapentry.getKey();
+                    Integer i = (Integer) mapentry.getValue();
+
+                    ArrayList<Nom> nomsPossibles = choixPossible(listeNomsAAssocies, i);
+
+                    Nom nomAAssocie;
+                    Random rand = new Random();
+                    // on prend un nombre aléatoire entre 0 et la taille des possibilités - 1
+                    int valeur = rand.nextInt(nomsPossibles.size());
+                    nomAAssocie = nomsPossibles.get(valeur);
+
+                    association.put(n, nomAAssocie);
+
+                    // on supprime le prenom des choix disponibles
+                    listeNomsAAssocies.remove(nomAAssocie);
+                }
+            } catch (IllegalArgumentException e) {
+                Toast.makeText(ResultRandom.this, "Erreur association, recommencer !", Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        }
+
+        /*try {
+            MailSender sender = new MailSender("dylan.monneau@gmail.com",
+                    "i@LQZ3ekwX$xG3");
+            Iterator it = association.entrySet().iterator();
+            while(it.hasNext()) {
+                Map.Entry<Nom, Nom> mapentry = (Map.Entry) it.next();
+                Nom to = mapentry.getValue();
+                sender.sendMail("Père Noël secret MONNEAU", "Tu dois faire un cadeau à " + to,
+                        "dylan.monneau@gmail.com", to.getNom());
+            }
+
+        } catch (Exception e) {
+            Log.e("SendMail", e.getMessage(), e);
+        }*/
+
+        sendMessage();
+
+    }
+
+    private void sendMessage() {
+        // With Android Level >= 23, you have to ask the user
+        // for permission to send SMS.
+        if (android.os.Build.VERSION.SDK_INT >=  android.os.Build.VERSION_CODES.M) { // 23
+
+            // Check if we have send SMS permission
+            int sendSmsPermisson = ActivityCompat.checkSelfPermission(this,
+                    Manifest.permission.SEND_SMS);
+
+            if (sendSmsPermisson != PackageManager.PERMISSION_GRANTED) {
+                // If don't have permission so prompt the user.
+                this.requestPermissions(
+                        new String[]{Manifest.permission.SEND_SMS},
+                        MY_PERMISSION_REQUEST_CODE_SEND_SMS
+                );
+                return;
+            }
+        }
+        this.sendSMS_by_smsManager();
+    }
+
+    private void sendSMS_by_smsManager()  {
+
+        Iterator it = association.entrySet().iterator();
+        String message;
+        String phoneNumber;
+        Map.Entry<Nom, Nom> entry;
+        Nom from;
+        Nom to;
+        String toName;
+
+        try {
+            // Get the default instance of the SmsManager
+            SmsManager smsManager = SmsManager.getDefault();
+
+            // Send Message
+            while(it.hasNext()) {
+                entry = (Map.Entry) it.next();
+                from = entry.getKey();
+                to = entry.getValue();
+                phoneNumber = from.getNumero();
+                toName = to.getNom();
+
+                smsManager.sendTextMessage(phoneNumber,
+                        null,
+                        "Coucou, pour le Père Nöel Secret, tu as : " + toName,
+                        null,
+                        null);
+
+                Log.i("SMS", "Your sms has successfully sent!");
+                Toast.makeText(getApplicationContext(), "Your sms has successfully sent!",
+                        Toast.LENGTH_LONG).show();
+            }
+        } catch (Exception ex) {
+            Log.e( "SMS","Your sms has failed...", ex);
+            Toast.makeText(getApplicationContext(),"Your sms has failed... " + ex.getMessage(),
+                    Toast.LENGTH_LONG).show();
+            ex.printStackTrace();
+        }
+    }
+
+    public void onSaveInstanceState(Bundle saveInstanceState) {
+        super.onSaveInstanceState(saveInstanceState);
+
+        saveInstanceState.putSerializable("listeNoms", association);
+        saveInstanceState.putSerializable("listeCouleurs", nomsCouleurs);
+    }
+
+    // When you have the request results
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        //
+        switch (requestCode) {
+            case MY_PERMISSION_REQUEST_CODE_SEND_SMS: {
+
+                // Note: If request is cancelled, the result arrays are empty.
+                // Permissions granted (SEND_SMS).
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    Log.i( "SMS","Permission granted!");
+                    Toast.makeText(this, "Permission granted!", Toast.LENGTH_LONG).show();
+
+                    this.sendSMS_by_smsManager();
+                }
+                // Cancelled or denied.
+                else {
+                    Log.i( "SMS","Permission denied!");
+                    Toast.makeText(this, "Permission denied!", Toast.LENGTH_LONG).show();
+                }
+                break;
+            }
+        }
+    }
+
+    // When results returned
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == MY_PERMISSION_REQUEST_CODE_SEND_SMS) {
+            if (resultCode == RESULT_OK) {
+                // Do something with data (Result returned).
+                Toast.makeText(this, "Action OK", Toast.LENGTH_LONG).show();
+            } else if (resultCode == RESULT_CANCELED) {
+                Toast.makeText(this, "Action canceled", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(this, "Action Failed", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+}

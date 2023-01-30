@@ -23,9 +23,6 @@ public class MainActivity extends Activity implements View.OnClickListener
     private EditText nom;
     private EditText groupe;
     private EditText numero;
-    private ListView lv;
-    private Button ajouter;
-    private Button ok;
     private HashMap<Nom,Integer> noms = new LinkedHashMap<>();
     private HashMap<Integer,Integer> couleursGroupe = new LinkedHashMap<>();
 
@@ -33,11 +30,11 @@ public class MainActivity extends Activity implements View.OnClickListener
 
     // pour savoir si un élément est dejà présent dans le hashmap
     public boolean estPresent(String nom, Integer integ, HashMap<Nom,Integer> ln){
-        Iterator it = ln.entrySet().iterator();
+        Iterator<Map.Entry<Nom, Integer>> it = ln.entrySet().iterator();
         while(it.hasNext()) {
-            Map.Entry mapentry = (Map.Entry) it.next();
-            Nom n = (Nom) mapentry.getKey();
-            Integer i = (Integer) mapentry.getValue();
+            Map.Entry<Nom, Integer> mapentry = it.next();
+            Nom n = mapentry.getKey();
+            Integer i = mapentry.getValue();
             if (n.getNom().compareToIgnoreCase(nom) == 0 && i.equals(integ))
                 return true;
         }
@@ -49,7 +46,7 @@ public class MainActivity extends Activity implements View.OnClickListener
 
         for (Integer key : m.keySet()) {
             Integer nombre = m.get(key);
-            if(!(key.equals(cle) && nombre.equals(valeur)))
+            if(!(key.equals(cle) && nombre != null && nombre.equals(valeur)))
                 somme += nombre;
         }
 
@@ -69,14 +66,14 @@ public class MainActivity extends Activity implements View.OnClickListener
             monAdapter = new MonAdapter(noms,couleursGroupe);
         }
 
-        lv = (ListView) findViewById(R.id.listeNoms);
+        ListView lv = (ListView) findViewById(R.id.listeNoms);
         lv.setAdapter(monAdapter);
 
         nom = (EditText) findViewById(R.id.nom);
         groupe = (EditText) findViewById(R.id.groupe);
         numero = (EditText) findViewById(R.id.numero);
 
-        ok = (Button) findViewById(R.id.random);
+        Button ok = (Button) findViewById(R.id.random);
         ok.setOnClickListener(this);
     }
 
@@ -95,15 +92,12 @@ public class MainActivity extends Activity implements View.OnClickListener
 
                 noms.put(n, i);
                 // pour trier le hashmap selon les valeurs (qu'elles soient dans l'ordre croissant
-                Comparator<Integer> valueComparator = new Comparator<Integer>() {
-                    @Override
-                    public int compare(Integer s1, Integer s2) {
-                        if(s1 >= s2) return 1;
-                        else return -1;
-                    }
+                Comparator<Integer> valueComparator = (s1, s2) -> {
+                    if(s1 >= s2) return 1;
+                    else return -1;
                 };
-                MapValueComparator<Nom, Integer> mapComparator = new MapValueComparator<Nom, Integer>(noms, valueComparator);
-                Map<Nom, Integer> sortedOnValuesMap = new TreeMap<Nom, Integer>(mapComparator);
+                MapValueComparator<Nom, Integer> mapComparator = new MapValueComparator<>(noms, valueComparator);
+                Map<Nom, Integer> sortedOnValuesMap = new TreeMap<>(mapComparator);
                 sortedOnValuesMap.putAll(noms);
                 // on les remet dans le hashmap de base
                 noms.clear();
@@ -133,11 +127,11 @@ public class MainActivity extends Activity implements View.OnClickListener
         versResult.putExtra("couleurs", couleursGroupe);
 
         // Permet de savoir si les associations sont possibles
-        HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
-        Iterator it = noms.entrySet().iterator();
+        HashMap<Integer, Integer> map = new HashMap<>();
+        Iterator<Map.Entry<Nom, Integer>> it = noms.entrySet().iterator();
         while(it.hasNext()){
-            Map.Entry mapentry = (Map.Entry) it.next();
-            Integer item = (Integer) mapentry.getValue();
+            Map.Entry<Nom, Integer> mapentry = it.next();
+            Integer item = mapentry.getValue();
             Integer nombre = map.get(item);
             if (nombre == null) {
                 nombre = 0;
@@ -149,8 +143,8 @@ public class MainActivity extends Activity implements View.OnClickListener
         boolean possible = true;
         for (Integer key : map.keySet()) {
             Integer nombre = map.get(key);
-            if(nombre > sommeReste(map, key, nombre))
-                possible &= false;
+            if(nombre != null && nombre > sommeReste(map, key, nombre))
+                possible = false;
         }
 
         if (noms.size() < 2 )

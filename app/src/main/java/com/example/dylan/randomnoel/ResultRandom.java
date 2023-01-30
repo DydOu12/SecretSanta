@@ -138,21 +138,6 @@ public class ResultRandom extends AppCompatActivity
             }
         }
 
-        /*try {
-            MailSender sender = new MailSender("dylan.monneau@gmail.com",
-                    "i@LQZ3ekwX$xG3");
-            Iterator it = association.entrySet().iterator();
-            while(it.hasNext()) {
-                Map.Entry<Nom, Nom> mapentry = (Map.Entry) it.next();
-                Nom to = mapentry.getValue();
-                sender.sendMail("Père Noël secret MONNEAU", "Tu dois faire un cadeau à " + to,
-                        "dylan.monneau@gmail.com", to.getNom());
-            }
-
-        } catch (Exception e) {
-            Log.e("SendMail", e.getMessage(), e);
-        }*/
-
         sendMessage();
 
     }

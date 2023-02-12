@@ -1,5 +1,14 @@
 .idea
 build
 *.iml
-gradle/*
 .gradle/*
+local.properties
+gradle.properties
+caches/*
+daemon/*
+android/*
+.tmp/*
+jdks/*
+android.lock
+native/*
+wrapper/*

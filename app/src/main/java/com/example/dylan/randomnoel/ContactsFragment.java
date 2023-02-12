@@ -14,9 +14,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.provider.ContactsContract;
+import android.widget.ArrayAdapter;
 import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.Toast;
+
+import androidx.fragment.app.ListFragment;
 
 public class ContactsFragment extends Fragment implements
         LoaderManager.LoaderCallbacks<Cursor>,
@@ -48,7 +52,7 @@ public class ContactsFragment extends Fragment implements
                     ContactsContract.Contacts.DISPLAY_NAME_PRIMARY + " LIKE ?" :
                     ContactsContract.Contacts.DISPLAY_NAME + " LIKE ?";
     // Defines a variable for the search string
-    private String searchString;
+    private String searchString = "P.maman";
     // Defines the array to hold values that replace the ?
     private String[] selectionArgs = { searchString };
 
@@ -70,9 +74,11 @@ public class ContactsFragment extends Fragment implements
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
         // Gets the ListView from the View list of the parent activity
         contactsList =
-                (ListView) getActivity().findViewById(R.layout.contacts_list_view);
+                (ListView) getActivity().findViewById(R.id.listContacts);
+
         // Gets a CursorAdapter
         cursorAdapter = new SimpleCursorAdapter(
                 getActivity(),
@@ -80,6 +86,8 @@ public class ContactsFragment extends Fragment implements
                 null,
                 FROM_COLUMNS, TO_IDS,
                 0);
+        ArrayAdapter adapter = ArrayAdapter.createFromResource(getActivity(),
+                R.array.planets, android.R.layout.simple_list_item_1);
         // Sets the adapter for the ListView
         contactsList.setAdapter(cursorAdapter);
 
@@ -91,6 +99,9 @@ public class ContactsFragment extends Fragment implements
     @Override
     public void onItemClick(
             AdapterView<?> parent, View item, int position, long rowID) {
+
+        Toast.makeText(getActivity(), "Item: " + position, Toast.LENGTH_SHORT).show();
+
         // Get the Cursor
         Cursor cursor = ((CursorAdapter)parent.getAdapter()).getCursor();
         // Move to the selected contact

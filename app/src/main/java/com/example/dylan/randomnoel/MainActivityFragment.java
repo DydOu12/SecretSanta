@@ -1,8 +1,6 @@
 package com.example.dylan.randomnoel;
 
 import android.os.Bundle;
-import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 
 import androidx.appcompat.app.AppCompatActivity;
 

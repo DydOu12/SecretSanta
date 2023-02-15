@@ -139,7 +139,7 @@ public class ResultRandom extends AppCompatActivity
             }
         }
 
-        sendMessage();
+        //sendMessage();
 
     }
 

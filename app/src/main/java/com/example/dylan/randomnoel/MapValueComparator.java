@@ -2,7 +2,6 @@ package com.example.dylan.randomnoel;
 
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by Dylan on 12/04/2017.

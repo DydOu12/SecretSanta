@@ -1,5 +1,6 @@
 package com.example.dylan.randomnoel;
 
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,6 +41,7 @@ public class MonAdapter extends BaseAdapter
         return i;
     }
 
+    @SuppressLint("ViewHolder")
     public View getView(int position, final View convertView, ViewGroup parent)
     {
         // pour les noms avec leur groupe

@@ -1,11 +1,11 @@
 package com.example.dylan.randomnoel;
 
-import android.graphics.Color;
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -17,12 +17,15 @@ import java.util.List;
  */
 public class MonAdapterRandom extends BaseAdapter
 {
-    private HashMap<Nom,Nom> itemNom;
-    private HashMap<Nom,Integer> couleurs;
+    private final HashMap<Nom,Nom> itemNom;
+    private final HashMap<Nom,Integer> couleurs;
 
-    public MonAdapterRandom(HashMap<Nom,Nom> items, HashMap<Nom,Integer> c) {
+    private final Context context;
+
+    public MonAdapterRandom(HashMap<Nom,Nom> items, HashMap<Nom,Integer> c, Context cont) {
         itemNom = items;
         couleurs = c;
+        context = cont;
     }
 
     @Override
@@ -40,6 +43,7 @@ public class MonAdapterRandom extends BaseAdapter
         return i;
     }
 
+    @SuppressLint("ViewHolder")
     public View getView(int position, final View convertView, ViewGroup parent)
     {
         List<Nom> indexes = new ArrayList<>(itemNom.keySet());
@@ -52,10 +56,13 @@ public class MonAdapterRandom extends BaseAdapter
 
         // instantiation d’un View correspondant a notre fichier de layout
         row=LayoutInflater.from(parent.getContext()).inflate(R.layout.vue_liste_random, parent, false);
-        row.setBackgroundColor(coulValue);
+
+        if(coulValue != null)
+            row.setBackgroundColor(coulValue);
 
         TextView nom = (TextView)row.findViewById(R.id.assocNoms);
-        nom.setText(key.getNom() + ", tu auras : " + value.getNom());
+        assert value != null;
+        nom.setText(context.getString(R.string.attribution, key.getNom(), value.getNom()));
 
         return(row);
     }

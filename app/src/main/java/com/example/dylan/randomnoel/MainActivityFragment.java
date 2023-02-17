@@ -16,13 +16,13 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,8 +37,6 @@ public class MainActivityFragment extends AppCompatActivity implements View.OnCl
     private HashMap<Nom,Integer> noms = new LinkedHashMap<>();
     private HashMap<Integer,Integer> couleursGroupe = new LinkedHashMap<>();
 
-    private AdapterView monAdapter = new AdapterView(noms, couleursGroupe);
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,8 +50,9 @@ public class MainActivityFragment extends AppCompatActivity implements View.OnCl
         {
             noms = (HashMap<Nom,Integer>)savedInstanceState.getSerializable("listeNoms");
             couleursGroupe = (HashMap<Integer,Integer>)savedInstanceState.getSerializable("listeCouleurs");
-            monAdapter = new AdapterView(noms,couleursGroupe);
         }
+
+        AdapterView monAdapter = new AdapterView(noms,couleursGroupe, getApplicationContext());
 
         ListView lv = (ListView) findViewById(R.id.listeNoms);
         lv.setAdapter(monAdapter);
@@ -70,9 +69,8 @@ public class MainActivityFragment extends AppCompatActivity implements View.OnCl
 
         // Permet de savoir si les associations sont possibles
         HashMap<Integer, Integer> map = new HashMap<>();
-        Iterator<Map.Entry<Nom, Integer>> it = noms.entrySet().iterator();
-        while(it.hasNext()){
-            Map.Entry<Nom, Integer> mapentry = it.next();
+
+        for (Map.Entry<Nom, Integer> mapentry : noms.entrySet()) {
             Integer item = mapentry.getValue();
             Integer nombre = map.get(item);
             if (nombre == null) {
@@ -147,7 +145,7 @@ public class MainActivityFragment extends AppCompatActivity implements View.OnCl
 
         Spinner s = (Spinner) findViewById(R.id.nomContact);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, contacts);
+                android.R.layout.simple_spinner_dropdown_item, contacts);
         s.setAdapter(adapter);
     }
 
@@ -165,9 +163,8 @@ public class MainActivityFragment extends AppCompatActivity implements View.OnCl
 
     // pour savoir si un élément est dejà présent dans le hashmap
     private boolean estPresent(String nom, Integer integ, HashMap<Nom,Integer> ln){
-        Iterator<Map.Entry<Nom, Integer>> it = ln.entrySet().iterator();
-        while(it.hasNext()) {
-            Map.Entry<Nom, Integer> mapentry = it.next();
+
+        for (Map.Entry<Nom, Integer> mapentry : ln.entrySet()) {
             Nom n = mapentry.getKey();
             Integer i = mapentry.getValue();
             if (n.getNom().compareToIgnoreCase(nom) == 0 && i.equals(integ))
@@ -199,10 +196,8 @@ public class MainActivityFragment extends AppCompatActivity implements View.OnCl
 
                 noms.put(n, i);
                 // pour trier le hashmap selon les valeurs (qu'elles soient dans l'ordre croissant)
-                Comparator<Integer> valueComparator = (s1, s2) -> {
-                    if(s1 >= s2) return 1;
-                    else return -1;
-                };
+                Comparator<Integer> valueComparator = Integer::compareTo;
+
                 MapValueComparator<Nom, Integer> mapComparator = new MapValueComparator<>(noms, valueComparator);
                 Map<Nom, Integer> sortedOnValuesMap = new TreeMap<>(mapComparator);
                 sortedOnValuesMap.putAll(noms);
@@ -225,8 +220,8 @@ public class MainActivityFragment extends AppCompatActivity implements View.OnCl
         listeContacts.requestFocus();
     }
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                                           int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == PERMISSIONS_REQUEST_READ_CONTACTS) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {

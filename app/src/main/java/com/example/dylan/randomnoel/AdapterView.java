@@ -1,6 +1,7 @@
 package com.example.dylan.randomnoel;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,12 +19,15 @@ import java.util.List;
  */
 public class AdapterView extends BaseAdapter
 {
-    private HashMap<Nom,Integer> itemNom;
-    private HashMap<Integer,Integer> couleurs;
+    private final HashMap<Nom,Integer> itemNom;
+    private final HashMap<Integer,Integer> couleurs;
 
-    public AdapterView(HashMap<Nom,Integer> items, HashMap<Integer,Integer> c) {
+    private final Context context;
+
+    public AdapterView(HashMap<Nom,Integer> items, HashMap<Integer,Integer> c, Context cont) {
         itemNom = items;
         couleurs = c;
+        context = cont;
     }
 
     @Override
@@ -41,7 +45,7 @@ public class AdapterView extends BaseAdapter
         return i;
     }
 
-    @SuppressLint({"ViewHolder", "SetTextI18n"})
+    @SuppressLint({"ViewHolder"})
     public View getView(int position, final View convertView, ViewGroup parent)
     {
         // pour les noms avec leur groupe
@@ -58,20 +62,16 @@ public class AdapterView extends BaseAdapter
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         row=inflater.inflate(R.layout.vue_liste, parent, false);
 
-        row.setBackgroundColor(coulValue);
+        if(coulValue != null)
+            row.setBackgroundColor(coulValue);
 
         TextView nom = (TextView)row.findViewById(R.id.nomDansListe);
-        nom.setText(position+1 + " - " + key.getNom() + " - " + key.getNumero() + " - " + value);
+        nom.setText(context.getString(R.string.contact_liste_groupe, position+1, key.getNom(), key.getNumero(), value));
 
-        final int pos = position;
-
-        ImageView imageView = (ImageView) row.findViewById(R.id.suppr);
-        imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        ImageView deletePicture = (ImageView) row.findViewById(R.id.suppr);
+        deletePicture.setOnClickListener(v -> {
                 itemNom.remove(key);
                 notifyDataSetChanged();
-            }
         });
 
         return(row);

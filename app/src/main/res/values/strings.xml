@@ -6,4 +6,6 @@
     <string name="add">Ajouter</string>
     <string name="random">Random</string>
     <string name="attribution">%1$s, tu auras : %2s</string>
+    <string name="whosewho">Qui à qui ?</string>
+    <string name="send">Envoyer SMS</string>
 </resources>

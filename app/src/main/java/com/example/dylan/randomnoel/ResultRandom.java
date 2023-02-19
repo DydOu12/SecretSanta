@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.util.Log;
+import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,7 +27,7 @@ import androidx.core.app.ActivityCompat;
 /**
  * Created by Dylan on 09/04/2017.
  */
-public class ResultRandom extends AppCompatActivity
+public class ResultRandom extends AppCompatActivity implements View.OnClickListener
 {
     private HashMap<Nom,Nom> association;
     private HashMap<Nom,Integer> nomsCouleurs;
@@ -37,8 +38,8 @@ public class ResultRandom extends AppCompatActivity
         ArrayList<Nom> result = new ArrayList<>();
 
         for (Map.Entry<Nom, Integer> nomIntegerEntry : noms.entrySet()) {
-            Nom n = (Nom) ((Map.Entry<Nom, Integer>) nomIntegerEntry).getKey();
-            Integer i = (Integer) ((Map.Entry<Nom, Integer>) nomIntegerEntry).getValue();
+            Nom n = nomIntegerEntry.getKey();
+            Integer i = nomIntegerEntry.getValue();
             if (!i.equals(groupe))
                 result.add(n);
         }
@@ -52,7 +53,7 @@ public class ResultRandom extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_random);
 
-        TextView titre = (TextView) findViewById(R.id.titre);
+        TextView titre = findViewById(R.id.titre);
         titre.setTextSize(50);
 
         MonAdapterRandom monAdapter;
@@ -61,7 +62,7 @@ public class ResultRandom extends AppCompatActivity
             association = (HashMap<Nom,Nom>)savedInstanceState.getSerializable("listeNoms");
             nomsCouleurs = (HashMap<Nom,Integer>)savedInstanceState.getSerializable("listeCouleurs");
             monAdapter = new MonAdapterRandom(association,nomsCouleurs, getApplicationContext());
-            lv = (ListView) findViewById(R.id.listeNomsAssocies);
+            lv = findViewById(R.id.listeNomsAssocies);
             lv.setAdapter(monAdapter);
         }
         else {
@@ -94,22 +95,22 @@ public class ResultRandom extends AppCompatActivity
 
             nomsCouleurs = new LinkedHashMap<>();
             for (Map.Entry<Nom, Integer> mapentry : listeNomsTries.entrySet()) {
-                Nom n = (Nom) mapentry.getKey();
-                Integer g = (Integer) mapentry.getValue();
+                Nom n = mapentry.getKey();
+                Integer g = mapentry.getValue();
                 Integer c = listeCouleurs.get(g); // on a la couleur en fonction du groupe
                 nomsCouleurs.put(n, c);
             }
 
             // instanciation de la vue correspondant à la liste des associations des prénoms
-            lv = (ListView) findViewById(R.id.listeNomsAssocies);
+            lv = findViewById(R.id.listeNomsAssocies);
             monAdapter = new MonAdapterRandom(association, nomsCouleurs, getApplicationContext());
             lv.setAdapter(monAdapter);
 
             try {
                 // on itère sur chacune des personnes pour les associer à quelqu'un
                 for (Map.Entry<Nom, Integer> nomIntegerEntry : listeNomsTries.entrySet()) {
-                    Nom n = (Nom) ((Map.Entry<Nom, Integer>) nomIntegerEntry).getKey();
-                    Integer i = (Integer) ((Map.Entry<Nom, Integer>) nomIntegerEntry).getValue();
+                    Nom n = nomIntegerEntry.getKey();
+                    Integer i = nomIntegerEntry.getValue();
 
                     ArrayList<Nom> nomsPossibles = choixPossible(listeNomsAAssocies, i);
 
@@ -129,9 +130,6 @@ public class ResultRandom extends AppCompatActivity
                 finish();
             }
         }
-
-        sendMessage();
-
     }
 
     private void sendMessage() {
@@ -170,17 +168,19 @@ public class ResultRandom extends AppCompatActivity
 
             // Send Message
             while(it.hasNext()) {
-                entry = (Map.Entry<Nom, Nom>) it.next();
+                entry = it.next();
                 from = entry.getKey();
                 to = entry.getValue();
                 phoneNumber = from.getNumero();
                 toName = to.getNom();
 
-                smsManager.sendTextMessage(phoneNumber,
+                System.out.println("Coucou, pour le Père Nöel Secret, tu as : " + toName);
+
+                /*smsManager.sendTextMessage(phoneNumber,
                         null,
                         "Coucou, pour le Père Nöel Secret, tu as : " + toName,
                         null,
-                        null);
+                        null);*/
 
                 Log.i("SMS", "Your sms has successfully sent!");
                 Toast.makeText(getApplicationContext(), "Your sms has successfully sent!",
@@ -241,5 +241,10 @@ public class ResultRandom extends AppCompatActivity
                 Toast.makeText(this, "Action Failed", Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    @Override
+    public void onClick(View view) {
+        sendMessage();
     }
 }

@@ -1,20 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Qui à qui ?"
+        android:text="@string/whosewho"
         android:id="@+id/titre"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="30dp" />
+        android:layout_marginTop="20dp"
+        android:layout_centerHorizontal="true" />
 
     <ListView
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/listeNomsAssocies"
-        android:layout_gravity="center_horizontal" />
-</LinearLayout>
+        android:layout_above="@+id/sms"
+        android:layout_below="@+id/titre"
+        android:layout_marginTop="20dp"
+        android:layout_alignParentEnd="true"/>
+
+    <Button
+        android:id="@+id/sms"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:text="@string/send" />
+</RelativeLayout>

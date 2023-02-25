@@ -61,7 +61,7 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
         if(savedInstanceState != null){
             association = (HashMap<Nom,Nom>)savedInstanceState.getSerializable("listeNoms");
             nomsCouleurs = (HashMap<Nom,Integer>)savedInstanceState.getSerializable("listeCouleurs");
-            monAdapter = new MonAdapterRandom(association,nomsCouleurs, getApplicationContext());
+            monAdapter = new MonAdapterRandom(association,nomsCouleurs);
             lv = findViewById(R.id.listeNomsAssocies);
             lv.setAdapter(monAdapter);
         }
@@ -103,7 +103,7 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
 
             // instanciation de la vue correspondant à la liste des associations des prénoms
             lv = findViewById(R.id.listeNomsAssocies);
-            monAdapter = new MonAdapterRandom(association, nomsCouleurs, getApplicationContext());
+            monAdapter = new MonAdapterRandom(association, nomsCouleurs);
             lv.setAdapter(monAdapter);
 
             try {

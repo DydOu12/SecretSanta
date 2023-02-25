@@ -9,13 +9,17 @@ import androidx.annotation.NonNull;
  * Created by Dylan on 08/04/2017.
  */
 public class Nom implements Parcelable {
-    private final String nom;
+    private String nom;
     private final String numero;
 
     public Nom(String n, String numero) { this.nom = n; this.numero = numero; }
 
     public String getNom() {
         return nom;
+    }
+
+    public void setNom(String nom) {
+        this.nom = nom;
     }
 
     public String getNumero() {

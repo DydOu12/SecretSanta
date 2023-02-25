@@ -8,4 +8,7 @@
     <string name="attribution">%1$s, tu auras : %2s</string>
     <string name="whosewho">Qui à qui ?</string>
     <string name="send">Envoyer SMS</string>
+    <string name="suppr">Suppr</string>
+    <string name="num_group">Numéro - groupe</string>
+    <string name="idL">1</string>
 </resources>

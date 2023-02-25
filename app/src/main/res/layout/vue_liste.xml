@@ -1,32 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:columnCount="2"
-    android:rowCount="4">
+    android:layout_height="match_parent">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Medium Text"
-        android:id="@+id/nomDansListe"
+        android:text="@string/idL"
+        android:id="@+id/idLi"
         android:gravity="center_vertical|center|fill_vertical|center_horizontal"
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
-        android:layout_row="0"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
+        android:layout_marginStart="15dp"/>
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:id="@+id/nomContactInList"
+        android:gravity="center_vertical|center|fill_vertical|center_horizontal"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:layout_toEndOf="@id/idLi"
+        android:layout_toStartOf="@+id/numGroupe"
+        android:autofillHints=""
+        android:inputType="text"
+        tools:ignore="LabelFor" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/num_group"
+        android:id="@+id/numGroupe"
+        android:gravity="center_vertical|center|fill_vertical|center_horizontal"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
         android:layout_toStartOf="@+id/suppr" />
 
     <ImageView
         android:layout_width="44dp"
         android:layout_height="44dp"
         android:src="@drawable/croix"
-        android:layout_alignTop="@+id/nomDansListe"
         android:layout_alignParentEnd="true"
         android:id="@+id/suppr"
-        android:layout_row="0"
-        android:layout_column="1" />
+        android:layout_marginStart="15dp"
+        android:contentDescription="@string/suppr" />
 
 </RelativeLayout>

@@ -1,11 +1,11 @@
 package com.example.dylan.randomnoel;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -22,12 +22,9 @@ public class AdapterView extends BaseAdapter
     private final HashMap<Nom,Integer> itemNom;
     private final HashMap<Integer,Integer> couleurs;
 
-    private final Context context;
-
-    public AdapterView(HashMap<Nom,Integer> items, HashMap<Integer,Integer> c, Context cont) {
+    public AdapterView(HashMap<Nom,Integer> items, HashMap<Integer,Integer> c) {
         itemNom = items;
         couleurs = c;
-        context = cont;
     }
 
     @Override
@@ -65,10 +62,16 @@ public class AdapterView extends BaseAdapter
         if(coulValue != null)
             row.setBackgroundColor(coulValue);
 
-        TextView nom = (TextView)row.findViewById(R.id.nomDansListe);
-        nom.setText(context.getString(R.string.contact_liste_groupe, position+1, key.getNom(), key.getNumero(), value));
+        TextView idL = row.findViewById(R.id.idLi);
+        idL.setText(String.valueOf(position+1));
 
-        ImageView deletePicture = (ImageView) row.findViewById(R.id.suppr);
+        EditText nom = row.findViewById(R.id.nomContactInList);
+        nom.setText(key.getNom());
+
+        TextView numGroup = row.findViewById(R.id.numGroupe);
+        numGroup.setText(key.getNumero() + " - " + value);
+
+        ImageView deletePicture = row.findViewById(R.id.suppr);
         deletePicture.setOnClickListener(v -> {
                 itemNom.remove(key);
                 notifyDataSetChanged();

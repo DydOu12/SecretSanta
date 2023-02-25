@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.view.View;
@@ -21,13 +22,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.TreeMap;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -36,6 +38,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private HashMap<Nom,Integer> noms = new LinkedHashMap<>();
     private HashMap<Integer,Integer> couleursGroupe = new LinkedHashMap<>();
+
+    private AdapterView monAdapter = new AdapterView(noms,couleursGroupe);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,14 +54,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         {
             noms = (HashMap<Nom,Integer>)savedInstanceState.getSerializable("listeNoms");
             couleursGroupe = (HashMap<Integer,Integer>)savedInstanceState.getSerializable("listeCouleurs");
+            monAdapter = new AdapterView(noms, couleursGroupe);
         }
 
-        AdapterView monAdapter = new AdapterView(noms,couleursGroupe, getApplicationContext());
-
-        ListView lv = (ListView) findViewById(R.id.listeNoms);
+        ListView lv = findViewById(R.id.listeNoms);
         lv.setAdapter(monAdapter);
 
-        Button ok = (Button) findViewById(R.id.random);
+        Button ok = findViewById(R.id.random);
         ok.setOnClickListener(this);
     }
 
@@ -66,6 +69,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Intent versResult = new Intent(MainActivity.this, ResultRandom.class);
         versResult.putExtra("listeNoms", noms);
         versResult.putExtra("couleurs", couleursGroupe);
+
+        Iterator<Nom> keyNameIt = this.noms.keySet().iterator();
+
+        // Modifier les noms si nécessaires
+        ListView lv = findViewById(R.id.listeNoms);
+        for(int i=0; i < lv.getChildCount(); ++i) {
+            View v = lv.getChildAt(i);
+            EditText eT = v.findViewById(R.id.nomContactInList);
+            String overrideName = eT.getText().toString();
+
+            keyNameIt.next().setNom(overrideName);
+        }
 
         // Permet de savoir si les associations sont possibles
         HashMap<Integer, Integer> map = new HashMap<>();
@@ -175,12 +190,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void ajouter(View v){
 
-        Spinner listeContacts = (Spinner) findViewById(R.id.nomContact);
+        Spinner listeContacts = findViewById(R.id.nomContact);
         String fullContact = listeContacts.getSelectedItem().toString();
 
         String nom = fullContact.substring(0, fullContact.indexOf(':'));
         String numero = fullContact.substring(fullContact.indexOf(':')+1);
-        EditText groupe = (EditText) findViewById(R.id.groupe);
+        EditText groupe = findViewById(R.id.groupe);
 
         Nom n = new Nom(nom, numero);
         if(!nom.isEmpty() && !groupe.getText().toString().isEmpty()) {
@@ -195,15 +210,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
 
                 noms.put(n, i);
-                // pour trier le hashmap selon les valeurs (qu'elles soient dans l'ordre croissant)
-                Comparator<Integer> valueComparator = Integer::compareTo;
 
-                MapValueComparator<Nom, Integer> mapComparator = new MapValueComparator<>(noms, valueComparator);
-                Map<Nom, Integer> sortedOnValuesMap = new TreeMap<>(mapComparator);
-                sortedOnValuesMap.putAll(noms);
-                // on les remet dans le hashmap de base
+                // pour trier le hashmap par groupe (qu'elles soient dans l'ordre croissant)
+                List<Map.Entry<Nom, Integer>> list =
+                        new LinkedList<>( noms.entrySet() );
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    Collections.sort( list, Map.Entry.comparingByValue());
+                }
+
                 noms.clear();
-                noms.putAll(sortedOnValuesMap);
+                for(Map.Entry<Nom, Integer> entry : list) {
+                    noms.put(entry.getKey(), entry.getValue());
+                }
             }
             else if(estPresent(n.getNom(), i, noms)){
                 Toast.makeText(MainActivity.this, "Déjà présent", Toast.LENGTH_SHORT).show();
@@ -219,6 +237,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         groupe.getText().clear();
         listeContacts.requestFocus();
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {

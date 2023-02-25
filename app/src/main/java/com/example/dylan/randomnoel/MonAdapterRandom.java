@@ -1,7 +1,6 @@
 package com.example.dylan.randomnoel;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,12 +19,9 @@ public class MonAdapterRandom extends BaseAdapter
     private final HashMap<Nom,Nom> itemNom;
     private final HashMap<Nom,Integer> couleurs;
 
-    private final Context context;
-
-    public MonAdapterRandom(HashMap<Nom,Nom> items, HashMap<Nom,Integer> c, Context cont) {
+    public MonAdapterRandom(HashMap<Nom,Nom> items, HashMap<Nom,Integer> c) {
         itemNom = items;
         couleurs = c;
-        context = cont;
     }
 
     @Override
@@ -60,9 +56,9 @@ public class MonAdapterRandom extends BaseAdapter
         if(coulValue != null)
             row.setBackgroundColor(coulValue);
 
-        TextView nom = (TextView)row.findViewById(R.id.assocNoms);
+        TextView nom = row.findViewById(R.id.assocNoms);
         assert value != null;
-        nom.setText(context.getString(R.string.attribution, key.getNom(), value.getNom()));
+        nom.setText(key.getNom() + ", tu auras : " + value.getNom());
 
         return(row);
     }

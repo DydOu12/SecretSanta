@@ -39,13 +39,6 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.1'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
-    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'com.google.android.material:material:1.8.0'
     testImplementation 'junit:junit:4.13.2'
-
-    def fragment_version = "1.5.5"
-
-    // Java language implementation
-    implementation "androidx.fragment:fragment:$fragment_version"
-    // Testing Fragments in Isolation
-    debugImplementation "androidx.fragment:fragment-testing:$fragment_version"
 }

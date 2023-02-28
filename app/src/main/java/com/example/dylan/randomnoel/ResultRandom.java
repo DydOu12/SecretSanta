@@ -85,7 +85,7 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
 
             try {
                 // on itère sur chacune des personnes pour les associer à quelqu'un
-                for(Nom n : listeNomsAAssocies) {
+                for(Nom n : listeNoms) {
                     Integer i = n.getGroupe();
 
                     ArrayList<Nom> nomsPossibles = choixPossible(listeNomsAAssocies, i);
@@ -170,7 +170,7 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    public void onSaveInstanceState(Bundle saveInstanceState) {
+    public void onSaveInstanceState(@NonNull Bundle saveInstanceState) {
         super.onSaveInstanceState(saveInstanceState);
 
         saveInstanceState.putSerializable("listeNoms", association);

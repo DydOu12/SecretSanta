@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             startActivity(versResult);
     }
 
-    public void onSaveInstanceState(Bundle saveInstanceState) {
+    public void onSaveInstanceState(@NonNull Bundle saveInstanceState) {
         super.onSaveInstanceState(saveInstanceState);
 
         saveInstanceState.putSerializable("listeNoms", noms);
@@ -218,6 +218,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 n.setCouleur(couleur);
                 n.setGroupe(i);
+
+                noms.add(n);
 
                 // pour trier la liste des noms par groupe (qu'elles soient dans l'ordre croissant)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

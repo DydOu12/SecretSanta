@@ -22,10 +22,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -77,22 +80,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // Permet de savoir si les associations sont possibles
         HashMap<Integer, Integer> map = new HashMap<>();
 
-        for (Nom n : noms) {
-            Integer item = n.getGroupe();
-            Integer nombre = map.get(item);
-            if (nombre == null) {
-                nombre = 0;
-            }
-            nombre++;
-            map.put(item, nombre);
+        // permet d'associer le nombre de personnes par groupe
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            noms.forEach(nom -> map.merge(nom.getGroupe(), 1, Integer::sum));
         }
 
-        boolean possible = true;
-        for (Integer key : map.keySet()) {
-            Integer nombre = map.get(key);
-            if(nombre != null && nombre > sommeReste(map, key, nombre))
-                possible = false;
-        }
+        boolean possible = associationPossible(map);
 
         if (noms.size() < 2 )
             Toast.makeText(MainActivity.this, "Entrez au moins deux personnes !", Toast.LENGTH_SHORT).show();
@@ -155,16 +148,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         s.setAdapter(adapter);
     }
 
-    private int sommeReste(HashMap<Integer,Integer> m, Integer cle, Integer valeur){
-        int somme = 0;
+    /**
+     *
+     * @param assoPersonByGroup la map associant le nombre de personne par groupe
+     * @return vrai si l'association entre les personnes est possible
+     */
+    private boolean associationPossible(HashMap<Integer,Integer> assoPersonByGroup){
 
-        for (Integer key : m.keySet()) {
-            Integer nombre = m.get(key);
-            if(!(key.equals(cle) && nombre != null && nombre.equals(valeur)))
-                somme += nombre;
+        // pour que l'association soit possible, il faut que la somme du nombre de personnes pour
+        // chaque autre groupe soit <= au nombre de personne du groupe en cours
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            /*assoPersonByGroup.keySet()
+                .stream()
+                .map(m::get)
+                .reduce(0, Integer::sum);*/
+
+
         }
 
-        return somme;
+        return true;
     }
 
     // pour savoir si un élément est dejà présent dans la liste

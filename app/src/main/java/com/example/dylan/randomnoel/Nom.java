@@ -5,12 +5,16 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
+import java.io.Serializable;
+
 /**
  * Created by Dylan on 08/04/2017.
  */
-public class Nom implements Parcelable {
+public class Nom implements Parcelable, Serializable {
     private String nom;
     private final String numero;
+    private Integer groupe;
+    private Integer couleur;
 
     public Nom(String n, String numero) { this.nom = n; this.numero = numero; }
 
@@ -18,8 +22,24 @@ public class Nom implements Parcelable {
         return nom;
     }
 
+    public void setGroupe(Integer groupe) {
+        this.groupe = groupe;
+    }
+
+    public void setCouleur(Integer couleur) {
+        this.couleur = couleur;
+    }
+
     public void setNom(String nom) {
         this.nom = nom;
+    }
+
+    public Integer getGroupe() {
+        return groupe;
+    }
+
+    public Integer getCouleur() {
+        return couleur;
     }
 
     public String getNumero() {
@@ -31,13 +51,17 @@ public class Nom implements Parcelable {
     public String toString() {
         return "Nom{" +
                 "nom='" + nom + '\'' +
-                "numero='" + numero + '\'' +
+                ", numero='" + numero + '\'' +
+                ", groupe=" + groupe +
+                ", couleur=" + couleur +
                 '}';
     }
 
     protected Nom(Parcel in) {
         nom = in.readString();
         numero = in.readString();
+        couleur = in.readInt();
+        groupe = in.readInt();
     }
 
     public static final Parcelable.Creator<Nom> CREATOR = new Parcelable.Creator<Nom>() {
@@ -61,5 +85,7 @@ public class Nom implements Parcelable {
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(nom);
         parcel.writeString(numero);
+        parcel.writeInt(couleur);
+        parcel.writeInt(groupe);
     }
 }

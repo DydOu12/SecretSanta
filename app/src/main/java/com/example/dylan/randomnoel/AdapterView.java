@@ -9,8 +9,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -19,12 +17,10 @@ import java.util.List;
  */
 public class AdapterView extends BaseAdapter
 {
-    private final HashMap<Nom,Integer> itemNom;
-    private final HashMap<Integer,Integer> couleurs;
+    private final List<Nom> itemNom;
 
-    public AdapterView(HashMap<Nom,Integer> items, HashMap<Integer,Integer> c) {
+    public AdapterView(List<Nom> items) {
         itemNom = items;
-        couleurs = c;
     }
 
     @Override
@@ -46,12 +42,10 @@ public class AdapterView extends BaseAdapter
     public View getView(int position, final View convertView, ViewGroup parent)
     {
         // pour les noms avec leur groupe
-        List<Nom> indexes = new ArrayList<>(itemNom.keySet());
-        final Nom key = indexes.get(position);
-        final Integer value = itemNom.get(key);
+        final Nom key = itemNom.get(position);
 
         // pour les groupes associés avec leur couleur
-        final Integer coulValue = couleurs.get(value);
+        final Integer coulValue = key.getCouleur();
 
         View row;
 
@@ -69,7 +63,7 @@ public class AdapterView extends BaseAdapter
         nom.setText(key.getNom());
 
         TextView numGroup = row.findViewById(R.id.numGroupe);
-        numGroup.setText(key.getNumero() + " - " + value);
+        numGroup.setText(key.getNumero() + " - " + key.getGroupe());
 
         ImageView deletePicture = row.findViewById(R.id.suppr);
         deletePicture.setOnClickListener(v -> {

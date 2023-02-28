@@ -17,11 +17,9 @@ import java.util.List;
 public class MonAdapterRandom extends BaseAdapter
 {
     private final HashMap<Nom,Nom> itemNom;
-    private final HashMap<Nom,Integer> couleurs;
 
-    public MonAdapterRandom(HashMap<Nom,Nom> items, HashMap<Nom,Integer> c) {
+    public MonAdapterRandom(HashMap<Nom,Nom> items) {
         itemNom = items;
-        couleurs = c;
     }
 
     @Override
@@ -46,7 +44,7 @@ public class MonAdapterRandom extends BaseAdapter
         Nom key = indexes.get(position);
         Nom value = itemNom.get(key);
 
-        Integer coulValue = couleurs.get(key);
+        Integer coulValue = key.getCouleur();
 
         View row;
 

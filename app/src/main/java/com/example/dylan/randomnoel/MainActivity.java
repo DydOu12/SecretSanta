@@ -22,13 +22,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -36,10 +32,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // Request code for READ_CONTACTS. It can be any number > 0.
     private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 100;
 
-    private HashMap<Nom,Integer> noms = new LinkedHashMap<>();
-    private HashMap<Integer,Integer> couleursGroupe = new LinkedHashMap<>();
+    private ArrayList<Nom> noms = new ArrayList<>();
 
-    private AdapterView monAdapter = new AdapterView(noms,couleursGroupe);
+    private AdapterView monAdapter = new AdapterView(noms);
+
+    private ListView listNoms;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,13 +49,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if(savedInstanceState != null)
         {
-            noms = (HashMap<Nom,Integer>)savedInstanceState.getSerializable("listeNoms");
-            couleursGroupe = (HashMap<Integer,Integer>)savedInstanceState.getSerializable("listeCouleurs");
-            monAdapter = new AdapterView(noms, couleursGroupe);
+            noms = (ArrayList<Nom>) savedInstanceState.getSerializable("listeNoms");
+            monAdapter = new AdapterView(noms);
         }
 
-        ListView lv = findViewById(R.id.listeNoms);
-        lv.setAdapter(monAdapter);
+        listNoms = findViewById(R.id.listeNoms);
+        listNoms.setAdapter(monAdapter);
 
         Button ok = findViewById(R.id.random);
         ok.setOnClickListener(this);
@@ -68,25 +64,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         Intent versResult = new Intent(MainActivity.this, ResultRandom.class);
         versResult.putExtra("listeNoms", noms);
-        versResult.putExtra("couleurs", couleursGroupe);
-
-        Iterator<Nom> keyNameIt = this.noms.keySet().iterator();
 
         // Modifier les noms si nécessaires
-        ListView lv = findViewById(R.id.listeNoms);
-        for(int i=0; i < lv.getChildCount(); ++i) {
-            View v = lv.getChildAt(i);
+        for(int i = 0; i < listNoms.getChildCount(); ++i) {
+            View v = listNoms.getChildAt(i);
             EditText eT = v.findViewById(R.id.nomContactInList);
             String overrideName = eT.getText().toString();
 
-            keyNameIt.next().setNom(overrideName);
+            noms.get(i).setNom(overrideName);
         }
 
         // Permet de savoir si les associations sont possibles
         HashMap<Integer, Integer> map = new HashMap<>();
 
-        for (Map.Entry<Nom, Integer> mapentry : noms.entrySet()) {
-            Integer item = mapentry.getValue();
+        for (Nom n : noms) {
+            Integer item = n.getGroupe();
             Integer nombre = map.get(item);
             if (nombre == null) {
                 nombre = 0;
@@ -114,7 +106,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onSaveInstanceState(saveInstanceState);
 
         saveInstanceState.putSerializable("listeNoms", noms);
-        saveInstanceState.putSerializable("listeCouleurs", couleursGroupe);
     }
 
     public void accordPermission() {
@@ -176,16 +167,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return somme;
     }
 
-    // pour savoir si un élément est dejà présent dans le hashmap
-    private boolean estPresent(String nom, Integer integ, HashMap<Nom,Integer> ln){
+    // pour savoir si un élément est dejà présent dans la liste
+    private boolean estPresent(String nom, Integer integ){
 
-        for (Map.Entry<Nom, Integer> mapentry : ln.entrySet()) {
-            Nom n = mapentry.getKey();
-            Integer i = mapentry.getValue();
+        for (Nom n : noms) {
+            Integer i = n.getGroupe();
             if (n.getNom().compareToIgnoreCase(nom) == 0 && i.equals(integ))
                 return true;
         }
         return false;
+    }
+
+    /**
+     *
+     * @param groupe le groupe du nom
+     * @return la couleur associee au groupe ou null s'il n'exite pas
+     */
+     private Integer groupePresent(Integer groupe) {
+        for(Nom n : noms) {
+            if(groupe.equals(n.getGroupe())) {
+                return n.getCouleur();
+            }
+        }
+
+        return null;
     }
 
     public void ajouter(View v){
@@ -201,29 +206,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(!nom.isEmpty() && !groupe.getText().toString().isEmpty()) {
             String val = groupe.getText() + "";
             int i = Integer.parseInt(val);
-            if(!estPresent(n.getNom(), i, noms)) {
+            if(!estPresent(n.getNom(), i)) {
+
+                Integer couleur = groupePresent(i);
+
                 // pour changer la couleur
-                if(!noms.containsValue(i)){
+                if(couleur == null){
                     Random r = new Random();
-                    int couleur = Color.rgb(r.nextInt(256), r.nextInt(256), r.nextInt(256));
-                    couleursGroupe.put(i,couleur);
+                    couleur = Color.rgb(r.nextInt(256), r.nextInt(256), r.nextInt(256));
                 }
 
-                noms.put(n, i);
+                n.setCouleur(couleur);
+                n.setGroupe(i);
 
-                // pour trier le hashmap par groupe (qu'elles soient dans l'ordre croissant)
-                List<Map.Entry<Nom, Integer>> list =
-                        new LinkedList<>( noms.entrySet() );
+                // pour trier la liste des noms par groupe (qu'elles soient dans l'ordre croissant)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    Collections.sort( list, Map.Entry.comparingByValue());
+                    noms.sort(Comparator.comparing(Nom::getGroupe));
                 }
 
-                noms.clear();
-                for(Map.Entry<Nom, Integer> entry : list) {
-                    noms.put(entry.getKey(), entry.getValue());
-                }
             }
-            else if(estPresent(n.getNom(), i, noms)){
+            else if(estPresent(n.getNom(), i)){
                 Toast.makeText(MainActivity.this, "Déjà présent", Toast.LENGTH_SHORT).show();
             }
         }
@@ -236,6 +238,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         groupe.getText().clear();
         listeContacts.requestFocus();
+
+        listNoms.setAdapter(monAdapter);
     }
 
     @Override

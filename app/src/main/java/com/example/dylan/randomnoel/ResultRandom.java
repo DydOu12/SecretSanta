@@ -3,6 +3,7 @@ package com.example.dylan.randomnoel;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.util.Log;
@@ -16,9 +17,9 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.TreeMap;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,16 +31,14 @@ import androidx.core.app.ActivityCompat;
 public class ResultRandom extends AppCompatActivity implements View.OnClickListener
 {
     private HashMap<Nom,Nom> association;
-    private HashMap<Nom,Integer> nomsCouleurs;
 
     private static final int MY_PERMISSION_REQUEST_CODE_SEND_SMS = 1;
 
-    public ArrayList<Nom> choixPossible(HashMap<Nom,Integer> noms, Integer groupe){
+    public ArrayList<Nom> choixPossible(List<Nom> noms, Integer groupe){
         ArrayList<Nom> result = new ArrayList<>();
 
-        for (Map.Entry<Nom, Integer> nomIntegerEntry : noms.entrySet()) {
-            Nom n = nomIntegerEntry.getKey();
-            Integer i = nomIntegerEntry.getValue();
+        for(Nom n : noms) {
+            Integer i = n.getGroupe();
             if (!i.equals(groupe))
                 result.add(n);
         }
@@ -60,57 +59,34 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
         ListView lv;
         if(savedInstanceState != null){
             association = (HashMap<Nom,Nom>)savedInstanceState.getSerializable("listeNoms");
-            nomsCouleurs = (HashMap<Nom,Integer>)savedInstanceState.getSerializable("listeCouleurs");
-            monAdapter = new MonAdapterRandom(association,nomsCouleurs);
+            monAdapter = new MonAdapterRandom(association);
             lv = findViewById(R.id.listeNomsAssocies);
             lv.setAdapter(monAdapter);
         }
         else {
             // contient la liste des noms associés aux groupe
-            HashMap<Nom, Integer> listeNoms = (HashMap<Nom, Integer>) getIntent().getSerializableExtra("listeNoms");
-
-            //contient l'association groupe <--> couleur
-            HashMap<Integer, Integer> listeCouleurs = (HashMap<Integer, Integer>) getIntent().getSerializableExtra("couleurs");
+            List<Nom> listeNoms = (List<Nom>) getIntent().getSerializableExtra("listeNoms");
 
             // on les trie par groupe (car ils ne le sont pas)
-            HashMap<Nom, Integer> listeNomsTries = new LinkedHashMap<>(listeNoms);
-
-            // tri
-            Comparator<Integer> valueComparator = (s1, s2) -> {
-                if (s1 > s2) return 1;
-                else if(s1.equals(s2)) return 0;
-                else return -1;
-            };
-            MapValueComparator<Nom, Integer> mapComparator = new MapValueComparator<>(listeNomsTries, valueComparator);
-            Map<Nom, Integer> sortedOnValuesMap = new TreeMap<>(mapComparator);
-            sortedOnValuesMap.putAll(listeNoms);
-            listeNomsTries.clear();
-            listeNomsTries.putAll(sortedOnValuesMap);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                listeNoms.sort(Comparator.comparing(Nom::getGroupe));
+            }
 
             // on ajoute aussi les noms ici pour savoir quels sont les noms qu'ils restent à associer
-            HashMap<Nom, Integer> listeNomsAAssocies = new LinkedHashMap<>(listeNomsTries);
+            List<Nom> listeNomsAAssocies = new ArrayList<>(listeNoms);
 
             // association des noms
             association = new LinkedHashMap<>();
 
-            nomsCouleurs = new LinkedHashMap<>();
-            for (Map.Entry<Nom, Integer> mapentry : listeNomsTries.entrySet()) {
-                Nom n = mapentry.getKey();
-                Integer g = mapentry.getValue();
-                Integer c = listeCouleurs.get(g); // on a la couleur en fonction du groupe
-                nomsCouleurs.put(n, c);
-            }
-
             // instanciation de la vue correspondant à la liste des associations des prénoms
             lv = findViewById(R.id.listeNomsAssocies);
-            monAdapter = new MonAdapterRandom(association, nomsCouleurs);
+            monAdapter = new MonAdapterRandom(association);
             lv.setAdapter(monAdapter);
 
             try {
                 // on itère sur chacune des personnes pour les associer à quelqu'un
-                for (Map.Entry<Nom, Integer> nomIntegerEntry : listeNomsTries.entrySet()) {
-                    Nom n = nomIntegerEntry.getKey();
-                    Integer i = nomIntegerEntry.getValue();
+                for(Nom n : listeNomsAAssocies) {
+                    Integer i = n.getGroupe();
 
                     ArrayList<Nom> nomsPossibles = choixPossible(listeNomsAAssocies, i);
 
@@ -198,7 +174,6 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
         super.onSaveInstanceState(saveInstanceState);
 
         saveInstanceState.putSerializable("listeNoms", association);
-        saveInstanceState.putSerializable("listeCouleurs", nomsCouleurs);
     }
 
     // When you have the request results

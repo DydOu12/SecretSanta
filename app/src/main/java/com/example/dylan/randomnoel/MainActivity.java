@@ -22,20 +22,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     // Request code for READ_CONTACTS. It can be any number > 0.
     private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 100;
 
-    private ArrayList<Nom> noms = new ArrayList<>();
+    private static ArrayList<Nom> noms = new ArrayList<>();
 
     private AdapterView monAdapter = new AdapterView(noms);
 
@@ -77,13 +75,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             noms.get(i).setNom(overrideName);
         }
 
-        // Permet de savoir si les associations sont possibles
-        HashMap<Integer, Integer> map = new HashMap<>();
-
         // permet d'associer le nombre de personnes par groupe
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            noms.forEach(nom -> map.merge(nom.getGroupe(), 1, Integer::sum));
-        }
+        Map<Integer, Integer> map = getNumberOfPersonByGroupe();
 
         boolean possible = associationPossible(map);
 
@@ -150,33 +143,65 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     /**
      *
+     * @return l'association du nombre de personne par groupe
+     *
+     */
+    public static Map<Integer, Integer> getNumberOfPersonByGroupe() {
+        Map<Integer, Integer> map = new HashMap<>();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            noms.forEach(nom -> map.merge(nom.getGroupe(), 1, Integer::sum));
+        }
+
+        return map;
+    }
+
+    /**
+     *
      * @param assoPersonByGroup la map associant le nombre de personne par groupe
      * @return vrai si l'association entre les personnes est possible
      */
-    private boolean associationPossible(HashMap<Integer,Integer> assoPersonByGroup){
+    public static boolean associationPossible(Map<Integer,Integer> assoPersonByGroup){
 
-        // pour que l'association soit possible, il faut que la somme du nombre de personnes pour
-        // chaque autre groupe soit <= au nombre de personne du groupe en cours
+        boolean possible = true;
+
+        // pour que l'association soit possible, il faut que le nombre de personnes pour
+        // un couple (groupNumber, numberOfPerson) soit <= a la somme des personnes des autres groupes
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            /*assoPersonByGroup.keySet()
-                .stream()
-                .map(m::get)
-                .reduce(0, Integer::sum);*/
+            possible = assoPersonByGroup
+                    .entrySet()
+                    .stream()
+                    .map(entry
+                            -> {
+                                int sommeReste = assoPersonByGroup
+                                        .entrySet()
+                                        .stream()
+                                        .filter(asso -> !asso.getKey().equals(entry.getKey()))
+                                        .map(Map.Entry::getValue)
+                                        .reduce(0, Integer::sum);
 
-
+                                // pour chaque asso entry (groupeNumber, numberOfPerson)
+                                // on regarde si numberOfPerson (entry.getValue) est <=
+                                // a la somme des personnes des autres groupes
+                                return entry.getValue() <= sommeReste;
+                            }
+                    )
+                    .reduce(true, Boolean::logicalAnd);
         }
 
-        return true;
+        return possible;
     }
 
     // pour savoir si un élément est dejà présent dans la liste
-    private boolean estPresent(String nom, Integer integ){
+    public static boolean estPresent(String nom, Integer groupe){
 
-        for (Nom n : noms) {
-            Integer i = n.getGroupe();
-            if (n.getNom().compareToIgnoreCase(nom) == 0 && i.equals(integ))
-                return true;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            return noms
+                    .stream()
+                    .anyMatch(n ->
+                            n.getNom().compareToIgnoreCase(nom) == 0 && n.getGroupe().equals(groupe));
         }
+
         return false;
     }
 
@@ -185,12 +210,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * @param groupe le groupe du nom
      * @return la couleur associee au groupe ou null s'il n'exite pas
      */
-     private Integer groupePresent(Integer groupe) {
-        for(Nom n : noms) {
-            if(groupe.equals(n.getGroupe())) {
-                return n.getCouleur();
-            }
-        }
+     public static Integer getCouleurIfGroupePresent(Integer groupe) {
+         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+             return noms
+                .stream()
+                .filter(nom ->
+                    nom.getGroupe().equals(groupe))
+                .map(Nom::getCouleur)
+                .findFirst()
+                .orElse(null);
+         }
 
         return null;
     }
@@ -210,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             int i = Integer.parseInt(val);
             if(!estPresent(n.getNom(), i)) {
 
-                Integer couleur = groupePresent(i);
+                Integer couleur = getCouleurIfGroupePresent(i);
 
                 // pour changer la couleur
                 if(couleur == null){

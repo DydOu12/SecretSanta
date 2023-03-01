@@ -16,6 +16,8 @@ public class Nom implements Parcelable, Serializable {
     private Integer groupe;
     private Integer couleur;
 
+    public Nom(String n, String numero, Integer groupe, Integer couleur) { this.nom = n; this.numero = numero; this.groupe = groupe; this.couleur = couleur; }
+
     public Nom(String n, String numero) { this.nom = n; this.numero = numero; }
 
     public String getNom() {

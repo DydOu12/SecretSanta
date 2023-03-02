@@ -3,7 +3,6 @@ package com.example.dylan.randomnoel;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.util.Log;
@@ -68,9 +67,7 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
             List<Nom> listeNoms = (List<Nom>) getIntent().getSerializableExtra("listeNoms");
 
             // on les trie par groupe (car ils ne le sont pas)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                listeNoms.sort(Comparator.comparing(Nom::getGroupe));
-            }
+            listeNoms.sort(Comparator.comparing(Nom::getGroupe));
 
             // on ajoute aussi les noms ici pour savoir quels sont les noms qu'ils restent à associer
             List<Nom> listeNomsAAssocies = new ArrayList<>(listeNoms);
@@ -109,23 +106,20 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
     }
 
     private void sendMessage() {
-        // With Android Level >= 23, you have to ask the user
-        // for permission to send SMS.
-        if (android.os.Build.VERSION.SDK_INT >=  android.os.Build.VERSION_CODES.M) { // 23
 
-            // Check if we have send SMS permission
-            int sendSmsPermisson = ActivityCompat.checkSelfPermission(this,
-                    Manifest.permission.SEND_SMS);
+        // Check if we have send SMS permission
+        int sendSmsPermisson = ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.SEND_SMS);
 
-            if (sendSmsPermisson != PackageManager.PERMISSION_GRANTED) {
-                // If don't have permission so prompt the user.
-                this.requestPermissions(
-                        new String[]{Manifest.permission.SEND_SMS},
-                        MY_PERMISSION_REQUEST_CODE_SEND_SMS
-                );
-                return;
-            }
+        if (sendSmsPermisson != PackageManager.PERMISSION_GRANTED) {
+            // If don't have permission so prompt the user.
+            this.requestPermissions(
+                    new String[]{Manifest.permission.SEND_SMS},
+                    MY_PERMISSION_REQUEST_CODE_SEND_SMS
+            );
+            return;
         }
+
         this.sendSMS_by_smsManager();
     }
 

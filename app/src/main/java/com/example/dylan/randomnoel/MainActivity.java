@@ -6,8 +6,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.provider.ContactsContract;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // Request code for READ_CONTACTS. It can be any number > 0.
     private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 100;
 
-    private static ArrayList<Nom> noms = new ArrayList<>();
+    public static List<Nom> noms = new ArrayList<>();
 
     private AdapterView monAdapter = new AdapterView(noms);
 
@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View view) {
         Intent versResult = new Intent(MainActivity.this, ResultRandom.class);
-        versResult.putExtra("listeNoms", noms);
+        versResult.putParcelableArrayListExtra("listeNoms", (ArrayList<? extends Parcelable>) noms);
 
         // Modifier les noms si nécessaires
         for(int i = 0; i < listNoms.getChildCount(); ++i) {
@@ -75,10 +75,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             noms.get(i).setNom(overrideName);
         }
 
-        // permet d'associer le nombre de personnes par groupe
-        Map<Integer, Integer> map = getNumberOfPersonByGroupe();
-
-        boolean possible = associationPossible(map);
+        // permet d'associer le nombre de personnes par groupe et de savoir si l'association est
+        // possible par la suite
+        boolean possible = associationPossible(getNumberOfPersonByGroupe());
 
         if (noms.size() < 2 )
             Toast.makeText(MainActivity.this, "Entrez au moins deux personnes !", Toast.LENGTH_SHORT).show();
@@ -91,24 +90,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onSaveInstanceState(@NonNull Bundle saveInstanceState) {
         super.onSaveInstanceState(saveInstanceState);
 
-        saveInstanceState.putSerializable("listeNoms", noms);
+        saveInstanceState.putParcelableArrayList("listeNoms", (ArrayList<? extends Parcelable>) noms);
     }
 
     public void accordPermission() {
-        if (android.os.Build.VERSION.SDK_INT >=  android.os.Build.VERSION_CODES.M) { // 23
 
-            // Check if we have send SMS permission
-            int readContactPermission = ActivityCompat.checkSelfPermission(this,
-                    Manifest.permission.READ_CONTACTS);
+        // Check if we have send SMS permission
+        int readContactPermission = ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.READ_CONTACTS);
 
-            if (readContactPermission != PackageManager.PERMISSION_GRANTED) {
-                // If don't have permission so prompt the user.
-                this.requestPermissions(
-                        new String[]{Manifest.permission.READ_CONTACTS},
-                        PERMISSIONS_REQUEST_READ_CONTACTS
-                );
-                return;
-            }
+        if (readContactPermission != PackageManager.PERMISSION_GRANTED) {
+            // If don't have permission so prompt the user.
+            this.requestPermissions(
+                    new String[]{Manifest.permission.READ_CONTACTS},
+                    PERMISSIONS_REQUEST_READ_CONTACTS
+            );
+            return;
         }
 
         addContact();
@@ -149,9 +146,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static Map<Integer, Integer> getNumberOfPersonByGroupe() {
         Map<Integer, Integer> map = new HashMap<>();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            noms.forEach(nom -> map.merge(nom.getGroupe(), 1, Integer::sum));
-        }
+        noms.forEach(nom -> map.merge(nom.getGroupe(), 1, Integer::sum));
 
         return map;
     }
@@ -163,46 +158,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     public static boolean associationPossible(Map<Integer,Integer> assoPersonByGroup){
 
-        boolean possible = true;
-
         // pour que l'association soit possible, il faut que le nombre de personnes pour
         // un couple (groupNumber, numberOfPerson) soit <= a la somme des personnes des autres groupes
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            possible = assoPersonByGroup
-                    .entrySet()
-                    .stream()
-                    .map(entry
-                            -> {
-                                int sommeReste = assoPersonByGroup
-                                        .entrySet()
-                                        .stream()
-                                        .filter(asso -> !asso.getKey().equals(entry.getKey()))
-                                        .map(Map.Entry::getValue)
-                                        .reduce(0, Integer::sum);
+        return assoPersonByGroup
+                .entrySet()
+                .stream()
+                .map(entry
+                        -> {
+                            int sommeReste = assoPersonByGroup
+                                    .entrySet()
+                                    .stream()
+                                    .filter(asso -> !asso.getKey().equals(entry.getKey()))
+                                    .map(Map.Entry::getValue)
+                                    .reduce(0, Integer::sum);
 
-                                // pour chaque asso entry (groupeNumber, numberOfPerson)
-                                // on regarde si numberOfPerson (entry.getValue) est <=
-                                // a la somme des personnes des autres groupes
-                                return entry.getValue() <= sommeReste;
-                            }
-                    )
-                    .reduce(true, Boolean::logicalAnd);
-        }
-
-        return possible;
+                            // pour chaque asso entry (groupeNumber, numberOfPerson)
+                            // on regarde si numberOfPerson (entry.getValue) est <=
+                            // a la somme des personnes des autres groupes
+                            return entry.getValue() <= sommeReste;
+                        }
+                )
+                .reduce(true, Boolean::logicalAnd);
     }
 
     // pour savoir si un élément est dejà présent dans la liste
     public static boolean estPresent(String nom, Integer groupe){
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             return noms
                     .stream()
                     .anyMatch(n ->
                             n.getNom().compareToIgnoreCase(nom) == 0 && n.getGroupe().equals(groupe));
-        }
 
-        return false;
     }
 
     /**
@@ -211,17 +197,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * @return la couleur associee au groupe ou null s'il n'exite pas
      */
      public static Integer getCouleurIfGroupePresent(Integer groupe) {
-         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-             return noms
-                .stream()
-                .filter(nom ->
-                    nom.getGroupe().equals(groupe))
-                .map(Nom::getCouleur)
-                .findFirst()
-                .orElse(null);
-         }
 
-        return null;
+         return noms
+            .stream()
+            .filter(nom ->
+                nom.getGroupe().equals(groupe))
+            .map(Nom::getCouleur)
+            .findFirst()
+            .orElse(null);
     }
 
     public void ajouter(View v){
@@ -253,10 +236,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 noms.add(n);
 
                 // pour trier la liste des noms par groupe (qu'elles soient dans l'ordre croissant)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    noms.sort(Comparator.comparing(Nom::getGroupe));
-                }
-
+                noms.sort(Comparator.comparing(Nom::getGroupe));
             }
             else if(estPresent(n.getNom(), i)){
                 Toast.makeText(MainActivity.this, "Déjà présent", Toast.LENGTH_SHORT).show();

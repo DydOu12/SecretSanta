@@ -182,13 +182,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     // pour savoir si un élément est dejà présent dans la liste
-    public static boolean estPresent(String nom, Integer groupe){
+    public static boolean estPresent(Nom nom){
 
             return noms
-                    .stream()
-                    .anyMatch(n ->
-                            n.getNom().compareToIgnoreCase(nom) == 0 && n.getGroupe().equals(groupe));
-
+                    .contains(nom);
     }
 
     /**
@@ -220,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(!nom.isEmpty() && !groupe.getText().toString().isEmpty()) {
             String val = groupe.getText() + "";
             int i = Integer.parseInt(val);
-            if(!estPresent(n.getNom(), i)) {
+            if(!estPresent(n)) {
 
                 Integer couleur = getCouleurIfGroupePresent(i);
 
@@ -238,7 +235,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 // pour trier la liste des noms par groupe (qu'elles soient dans l'ordre croissant)
                 noms.sort(Comparator.comparing(Nom::getGroupe));
             }
-            else if(estPresent(n.getNom(), i)){
+            else {
                 Toast.makeText(MainActivity.this, "Déjà présent", Toast.LENGTH_SHORT).show();
             }
         }

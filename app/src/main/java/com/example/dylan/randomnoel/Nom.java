@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import androidx.annotation.NonNull;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * Created by Dylan on 08/04/2017.
@@ -89,5 +90,18 @@ public class Nom implements Parcelable, Serializable {
         parcel.writeString(numero);
         parcel.writeInt(couleur);
         parcel.writeInt(groupe);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Nom)) return false;
+        Nom nom1 = (Nom) o;
+        return Objects.equals(nom, nom1.nom) && Objects.equals(numero, nom1.numero) && Objects.equals(groupe, nom1.groupe) && Objects.equals(couleur, nom1.couleur);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(nom, numero, groupe, couleur);
     }
 }

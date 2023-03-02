@@ -1,6 +1,7 @@
 package com.example.dylan.randomnoel;
 
 import android.annotation.SuppressLint;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,7 +39,7 @@ public class AdapterView extends BaseAdapter
         return i;
     }
 
-    @SuppressLint({"ViewHolder"})
+    @SuppressLint({"ViewHolder", "SetTextI18n"})
     public View getView(int position, final View convertView, ViewGroup parent)
     {
         // pour les noms avec leur groupe
@@ -53,17 +54,30 @@ public class AdapterView extends BaseAdapter
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         row=inflater.inflate(R.layout.vue_liste, parent, false);
 
-        if(coulValue != null)
+        int textColor = Color.BLACK;
+
+        if(coulValue != null) {
             row.setBackgroundColor(coulValue);
 
+            int brightness = (int) Math.round(
+                Color.red(coulValue) * 0.299 +
+                Color.green(coulValue) * 0.587 +
+                Color.blue(coulValue) * 0.114);
+
+            if(brightness <= 125)
+                textColor = Color.WHITE;
+        }
         TextView idL = row.findViewById(R.id.idLi);
         idL.setText(String.valueOf(position+1));
+        idL.setTextColor(textColor);
 
         EditText nom = row.findViewById(R.id.nomContactInList);
         nom.setText(key.getNom());
+        nom.setTextColor(textColor);
 
         TextView numGroup = row.findViewById(R.id.numGroupe);
         numGroup.setText(key.getNumero() + " - " + key.getGroupe());
+        numGroup.setTextColor(textColor);
 
         ImageView deletePicture = row.findViewById(R.id.suppr);
         deletePicture.setOnClickListener(v -> {

@@ -1,12 +1,19 @@
 package com.example.dylan.randomnoel;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SecretSantaTest {
@@ -74,6 +81,26 @@ public class SecretSantaTest {
 
         coupleAssoImpossible.put(3,1);
         assertTrue(MainActivity.associationPossible(coupleAssoImpossible));
+    }
+
+    @Test
+    public void choixPossible_isCorrect() {
+        List<Nom> noms = new ArrayList<>();
+        noms.add(dylan);
+        noms.add(oceane);
+        noms.add(jacques);
+
+        List<Nom> choix = new ArrayList<>();
+        choix.add(dylan);
+        choix.add(oceane);
+        assertEquals(choix, ResultRandom.choixPossible(noms, 3));
+
+        choix.clear();
+        choix.add(jacques);
+        assertEquals(choix, ResultRandom.choixPossible(noms, 4));
+
+        noms.clear();
+        assertEquals(Collections.emptyList(), ResultRandom.choixPossible(noms, 1));
     }
 
 }

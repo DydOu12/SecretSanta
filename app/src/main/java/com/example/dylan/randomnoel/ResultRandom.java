@@ -7,9 +7,14 @@ import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -19,10 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
+import java.util.stream.Collectors;
 
 /**
  * Created by Dylan on 09/04/2017.
@@ -31,18 +33,14 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
 {
     private HashMap<Nom,Nom> association;
 
-    private static final int MY_PERMISSION_REQUEST_CODE_SEND_SMS = 1;
+    private static final int MY_PERMISSION_REQUEST_CODE_SEND_SMS = 100;
 
-    public ArrayList<Nom> choixPossible(List<Nom> noms, Integer groupe){
-        ArrayList<Nom> result = new ArrayList<>();
+    public static List<Nom> choixPossible(List<Nom> noms, Integer groupe){
 
-        for(Nom n : noms) {
-            Integer i = n.getGroupe();
-            if (!i.equals(groupe))
-                result.add(n);
-        }
-
-        return result;
+        return noms
+                .stream()
+                .filter(n -> !n.getGroupe().equals(groupe))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -85,7 +83,7 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
                 for(Nom n : listeNoms) {
                     Integer i = n.getGroupe();
 
-                    ArrayList<Nom> nomsPossibles = choixPossible(listeNomsAAssocies, i);
+                    List<Nom> nomsPossibles = choixPossible(listeNomsAAssocies, i);
 
                     Nom nomAAssocie;
                     Random rand = new Random();
@@ -103,6 +101,9 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
                 finish();
             }
         }
+
+        Button sendMessage = findViewById(R.id.sms);
+        sendMessage.setOnClickListener(this);
     }
 
     private void sendMessage() {
@@ -146,11 +147,11 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
 
                 System.out.println("Coucou, pour le Père Nöel Secret, tu as : " + toName);
 
-                /*smsManager.sendTextMessage(phoneNumber,
+                smsManager.sendTextMessage(phoneNumber,
                         null,
                         "Coucou, pour le Père Nöel Secret, tu as : " + toName,
                         null,
-                        null);*/
+                        null);
 
                 Log.i("SMS", "Your sms has successfully sent!");
                 Toast.makeText(getApplicationContext(), "Your sms has successfully sent!",
@@ -176,7 +177,6 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
                                            @NonNull String[] permissions, @NonNull int[] grantResults) {
 
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        //
         if (requestCode == MY_PERMISSION_REQUEST_CODE_SEND_SMS) {// Note: If request is cancelled, the result arrays are empty.
             // Permissions granted (SEND_SMS).
             if (grantResults.length > 0

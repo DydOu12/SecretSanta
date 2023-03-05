@@ -35,9 +35,9 @@ public class SecretSantaTest {
     private static final Nom samuel = new Nom("Samuel", "+33606060612", 3, 3);
     private static final Nom paul = new Nom("Paul", "+33606060613", 3, 3);
 
-    private static final Nom dylan = new Nom("Dylan", "+33606060610", 4, 4);
-    private static final Nom oceane = new Nom("Oceane", "+33606060611", 4, 4);
-    private static final Nom jp = new Nom("Jean-Pierre", "+33606060612", 4, 4);
+    private static final Nom dylan = new Nom("Dylan", "+33606060614", 4, 4);
+    private static final Nom oceane = new Nom("Oceane", "+33606060615", 4, 4);
+    private static final Nom jp = new Nom("Jean-Pierre", "+33606060616", 4, 4);
 
     @BeforeClass
     public static void setup() {
@@ -47,12 +47,10 @@ public class SecretSantaTest {
 
     @Test
     public void estPresent_isCorrect() {
-        Nom nom = new Nom("Dylan", "+33606060610", 4, 4);
+        Nom nom = new Nom("Dydou", "+33606060610", 3, 3);
         assertTrue(MainActivity.estPresent(nom));
-        nom.setNom("toto");
+        nom.setNumero("+33606060617");
         assertFalse(MainActivity.estPresent(nom));
-        Nom nom2 = new Nom("Dylan", "+33606060610", 4, 3);
-        assertFalse(MainActivity.estPresent(nom2));
     }
 
     @Test

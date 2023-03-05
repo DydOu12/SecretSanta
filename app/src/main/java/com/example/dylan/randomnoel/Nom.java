@@ -13,7 +13,7 @@ import java.util.Objects;
  */
 public class Nom implements Parcelable, Serializable {
     private String nom;
-    private final String numero;
+    private String numero;
     private Integer groupe;
     private Integer couleur;
 
@@ -35,6 +35,10 @@ public class Nom implements Parcelable, Serializable {
 
     public void setNom(String nom) {
         this.nom = nom;
+    }
+
+    public void setNumero(String numero) {
+        this.numero = numero;
     }
 
     public Integer getGroupe() {
@@ -97,7 +101,7 @@ public class Nom implements Parcelable, Serializable {
         if (this == o) return true;
         if (!(o instanceof Nom)) return false;
         Nom nom1 = (Nom) o;
-        return Objects.equals(nom, nom1.nom) && Objects.equals(numero, nom1.numero) && Objects.equals(groupe, nom1.groupe) && Objects.equals(couleur, nom1.couleur);
+        return Objects.equals(numero, nom1.numero);
     }
 
     @Override

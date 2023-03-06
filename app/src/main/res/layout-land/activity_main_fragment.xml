@@ -51,7 +51,8 @@
         android:text="@string/group"
         android:id="@+id/textView3"
         android:layout_alignBottom="@+id/groupe"
-        android:layout_alignStart="@+id/textView" />
+        android:layout_alignStart="@+id/textView"
+        android:onClick="egg"/>
 
     <Spinner
         android:id="@+id/nomContact"

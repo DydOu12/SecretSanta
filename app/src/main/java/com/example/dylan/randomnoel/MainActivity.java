@@ -39,6 +39,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private ListView listNoms;
 
+    private int remainingClickEasterEgg = 5;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -132,7 +134,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         c.close();
 
-        Spinner s = (Spinner) findViewById(R.id.nomContact);
+        Spinner s = findViewById(R.id.nomContact);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_dropdown_item, contacts);
         s.setAdapter(adapter);
@@ -202,6 +204,56 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             .map(Nom::getCouleur)
             .findFirst()
             .orElse(null);
+    }
+
+    public void egg(View v) {
+         --remainingClickEasterEgg;
+
+         if(remainingClickEasterEgg < 3 && remainingClickEasterEgg > 0)
+            Toast.makeText(MainActivity.this, remainingClickEasterEgg + " clics avant easter egg :)", Toast.LENGTH_SHORT).show();
+
+         if(remainingClickEasterEgg == 0) {
+             Nom helene = new Nom("Hélène", "0677693045", 1, Color.BLUE);
+             Nom laurent = new Nom("Laurent", "0631352000", 1, Color.BLUE);
+             Nom manon = new Nom("Manon", "0782384810", 1, Color.BLUE);
+             Nom elie = new Nom("Elie", "0768497874", 1, Color.BLUE);
+
+             Nom alain = new Nom("Alain", "0788590358", 2, Color.GREEN);
+             Nom bea = new Nom("Béa", "0683089227", 2, Color.GREEN);
+             Nom matthieu = new Nom("Matthieu", "0647746240", 2, Color.GREEN);
+             Nom francois = new Nom("François", "0635467242", 2, Color.GREEN);
+             Nom aurelie = new Nom("Aurelie", "0614283241", 2, Color.GREEN);
+
+             Nom babeth = new Nom("Babeth", "0621224549", 3, Color.RED);
+             Nom jacques = new Nom("Jacques", "0676999624", 3, Color.RED);
+             Nom sarah = new Nom("Sarah", "0616579051", 3, Color.RED);
+             Nom samuel = new Nom("Samuel", "0644236802", 3, Color.RED);
+             Nom paul = new Nom("Paul", "+33606060613", 3, Color.RED);
+
+             Nom dylan = new Nom("Dylan", "0643495070", 4, Color.YELLOW);
+             Nom oceane = new Nom("Oceane", "0686705621", 4, Color.YELLOW);
+             Nom jp = new Nom("Jean-Pierre", "0632895613", 4, Color.YELLOW);
+
+             noms.add(helene);
+             noms.add(laurent);
+             noms.add(manon);
+             noms.add(elie);
+             noms.add(bea);
+             noms.add(alain);
+             noms.add(matthieu);
+             noms.add(francois);
+             noms.add(aurelie);
+             noms.add(babeth);
+             noms.add(jacques);
+             noms.add(samuel);
+             noms.add(sarah);
+             noms.add(paul);
+             noms.add(oceane);
+             noms.add(dylan);
+             noms.add(jp);
+
+             listNoms.setAdapter(monAdapter);
+         }
     }
 
     public void ajouter(View v){

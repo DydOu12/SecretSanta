@@ -120,19 +120,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
                 null, null, null);
 
-        while (c.moveToNext()) {
+        if(c != null) {
+            while (c.moveToNext()) {
 
-            @SuppressLint("Range") String contactName = c
-                    .getString(c
-                            .getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-            @SuppressLint("Range") String phNumber = c
-                    .getString(c
-                            .getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                @SuppressLint("Range") String contactName = c
+                        .getString(c
+                                .getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+                @SuppressLint("Range") String phNumber = c
+                        .getString(c
+                                .getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
 
-            contacts.add(contactName + ":" + phNumber);
+                contacts.add(contactName + ":" + phNumber);
 
+            }
+            c.close();
         }
-        c.close();
 
         Spinner s = findViewById(R.id.nomContact);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
@@ -223,12 +225,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
              Nom matthieu = new Nom("Matthieu", "0647746240", 2, Color.GREEN);
              Nom francois = new Nom("François", "0635467242", 2, Color.GREEN);
              Nom aurelie = new Nom("Aurelie", "0614283241", 2, Color.GREEN);
+             Nom mariel = new Nom("Mariel", "0687586357", 2, Color.GREEN);
 
              Nom babeth = new Nom("Babeth", "0621224549", 3, Color.RED);
              Nom jacques = new Nom("Jacques", "0676999624", 3, Color.RED);
              Nom sarah = new Nom("Sarah", "0616579051", 3, Color.RED);
              Nom samuel = new Nom("Samuel", "0644236802", 3, Color.RED);
-             Nom paul = new Nom("Paul", "+33606060613", 3, Color.RED);
+             Nom paul = new Nom("Paul", "0687258509", 3, Color.RED);
 
              Nom dylan = new Nom("Dylan", "0643495070", 4, Color.YELLOW);
              Nom oceane = new Nom("Oceane", "0686705621", 4, Color.YELLOW);
@@ -243,6 +246,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
              noms.add(matthieu);
              noms.add(francois);
              noms.add(aurelie);
+             noms.add(mariel);
              noms.add(babeth);
              noms.add(jacques);
              noms.add(samuel);
@@ -267,7 +271,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Nom n = new Nom(nom, numero);
         if(!nom.isEmpty() && !groupe.getText().toString().isEmpty()) {
-            String val = groupe.getText() + "";
+            String val = String.valueOf(groupe.getText());
             int i = Integer.parseInt(val);
             if(!estPresent(n)) {
 

@@ -65,6 +65,7 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
             List<Nom> listeNoms = (List<Nom>) getIntent().getSerializableExtra("listeNoms");
 
             // on les trie par groupe (car ils ne le sont pas)
+            assert listeNoms != null;
             listeNoms.sort(Comparator.comparing(Nom::getGroupe));
 
             // on ajoute aussi les noms ici pour savoir quels sont les noms qu'ils restent à associer

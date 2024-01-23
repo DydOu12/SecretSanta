@@ -2,6 +2,9 @@ package com.example.dylan.randomnoel;
 
 import android.annotation.SuppressLint;
 import android.graphics.Color;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -75,6 +78,24 @@ public class AdapterView extends BaseAdapter
         nom.setText(key.getNom());
         nom.setTextColor(textColor);
 
+        nom.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                // Nothing to do
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                // Nothing to do
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                // On modifie le nom avec celui modifié
+                key.setNom(editable.toString());
+            }
+        });
+
         TextView numGroup = row.findViewById(R.id.numGroupe);
         numGroup.setText(key.getNumero() + " - " + key.getGroupe());
         numGroup.setTextColor(textColor);
@@ -87,4 +108,5 @@ public class AdapterView extends BaseAdapter
 
         return(row);
     }
+
 }

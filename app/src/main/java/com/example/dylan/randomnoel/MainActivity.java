@@ -17,29 +17,33 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     // Request code for READ_CONTACTS. It can be any number > 0.
     private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 100;
 
-    public static List<Nom> noms = new ArrayList<>();
+    protected static List<Nom> noms = new ArrayList<>();
 
     private AdapterView monAdapter = new AdapterView(noms);
 
     private ListView listNoms;
 
     private int remainingClickEasterEgg = 5;
+
+    private SecureRandom r = new SecureRandom();
+
+    private static final String LISTE_NOMS = "listeNoms";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if(savedInstanceState != null)
         {
-            noms = (ArrayList<Nom>) savedInstanceState.getSerializable("listeNoms");
+            noms = (ArrayList<Nom>) savedInstanceState.getSerializable(LISTE_NOMS);
             monAdapter = new AdapterView(noms);
         }
 
@@ -66,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View view) {
         Intent versResult = new Intent(MainActivity.this, ResultRandom.class);
-        versResult.putParcelableArrayListExtra("listeNoms", (ArrayList<? extends Parcelable>) noms);
+        versResult.putParcelableArrayListExtra(LISTE_NOMS, (ArrayList<? extends Parcelable>) noms);
 
         // Modifier les noms si nécessaires
         for(int i = 0; i < listNoms.getChildCount(); ++i) {
@@ -74,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             EditText eT = v.findViewById(R.id.nomContactInList);
             String overrideName = eT.getText().toString();
 
-            noms.get(i).setNom(overrideName);
+            noms.get(i).setName(overrideName);
         }
 
         // permet d'associer le nombre de personnes par groupe et de savoir si l'association est
@@ -89,16 +93,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             startActivity(versResult);
     }
 
+    @Override
     public void onSaveInstanceState(@NonNull Bundle saveInstanceState) {
         super.onSaveInstanceState(saveInstanceState);
 
-        saveInstanceState.putParcelableArrayList("listeNoms", (ArrayList<? extends Parcelable>) noms);
+        saveInstanceState.putParcelableArrayList(LISTE_NOMS, (ArrayList<? extends Parcelable>) noms);
     }
 
     public void accordPermission() {
 
         // Check if we have send SMS permission
-        int readContactPermission = ActivityCompat.checkSelfPermission(this,
+        int readContactPermission = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_CONTACTS);
 
         if (readContactPermission != PackageManager.PERMISSION_GRANTED) {
@@ -125,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 @SuppressLint("Range") String contactName = c
                         .getString(c
-                                .getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+                                .getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
                 @SuppressLint("Range") String phNumber = c
                         .getString(c
                                 .getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
@@ -279,7 +284,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 // pour changer la couleur
                 if(couleur == null){
-                    Random r = new Random();
                     couleur = Color.rgb(r.nextInt(256), r.nextInt(256), r.nextInt(256));
                 }
 

@@ -12,10 +12,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -23,8 +20,11 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.stream.Collectors;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 /**
  * Created by Dylan on 09/04/2017.
@@ -34,6 +34,10 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
     private HashMap<Nom,Nom> association;
 
     private static final int MY_PERMISSION_REQUEST_CODE_SEND_SMS = 100;
+
+    private final SecureRandom rand = new SecureRandom();
+
+    private static final String LISTE_NOMS = "listeNoms";
 
     public static List<Nom> choixPossible(List<Nom> noms, Integer groupe){
 
@@ -55,14 +59,14 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
         MonAdapterRandom monAdapter;
         ListView lv;
         if(savedInstanceState != null){
-            association = (HashMap<Nom,Nom>)savedInstanceState.getSerializable("listeNoms");
+            association = (HashMap<Nom,Nom>)savedInstanceState.getSerializable(LISTE_NOMS);
             monAdapter = new MonAdapterRandom(association);
             lv = findViewById(R.id.listeNomsAssocies);
             lv.setAdapter(monAdapter);
         }
         else {
             // contient la liste des noms associés aux groupe
-            List<Nom> listeNoms = (List<Nom>) getIntent().getSerializableExtra("listeNoms");
+            List<Nom> listeNoms = (List<Nom>) getIntent().getSerializableExtra(LISTE_NOMS);
 
             // on les trie par groupe (car ils ne le sont pas)
             assert listeNoms != null;
@@ -87,7 +91,7 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
                     List<Nom> nomsPossibles = choixPossible(listeNomsAAssocies, i);
 
                     Nom nomAAssocie;
-                    Random rand = new Random();
+
                     // on prend un nombre aléatoire entre 0 et la taille des possibilités - 1
                     int valeur = rand.nextInt(nomsPossibles.size());
                     nomAAssocie = nomsPossibles.get(valeur);
@@ -110,7 +114,7 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
     private void sendMessage() {
 
         // Check if we have send SMS permission
-        int sendSmsPermisson = ActivityCompat.checkSelfPermission(this,
+        int sendSmsPermisson = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.SEND_SMS);
 
         if (sendSmsPermisson != PackageManager.PERMISSION_GRANTED) {
@@ -122,10 +126,10 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
             return;
         }
 
-        this.sendSMS_by_smsManager();
+        this.sendSMSBySmsManager();
     }
 
-    private void sendSMS_by_smsManager()  {
+    private void sendSMSBySmsManager()  {
 
         Iterator<Map.Entry<Nom, Nom>> it = association.entrySet().iterator();
         String phoneNumber;
@@ -144,7 +148,7 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
                 from = entry.getKey();
                 to = entry.getValue();
                 phoneNumber = from.getNumero();
-                toName = to.getNom();
+                toName = to.getName();
 
                 smsManager.sendTextMessage(phoneNumber,
                         null,
@@ -160,14 +164,14 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
             Log.e( "SMS","Your sms has failed...", ex);
             Toast.makeText(getApplicationContext(),"Your sms has failed... " + ex.getMessage(),
                     Toast.LENGTH_LONG).show();
-            ex.printStackTrace();
         }
     }
 
+    @Override
     public void onSaveInstanceState(@NonNull Bundle saveInstanceState) {
         super.onSaveInstanceState(saveInstanceState);
 
-        saveInstanceState.putSerializable("listeNoms", association);
+        saveInstanceState.putSerializable(LISTE_NOMS, association);
     }
 
     // When you have the request results
@@ -184,7 +188,7 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
                 Log.i("SMS", "Permission granted!");
                 Toast.makeText(this, "Permission granted!", Toast.LENGTH_LONG).show();
 
-                this.sendSMS_by_smsManager();
+                this.sendSMSBySmsManager();
             }
             // Cancelled or denied.
             else {

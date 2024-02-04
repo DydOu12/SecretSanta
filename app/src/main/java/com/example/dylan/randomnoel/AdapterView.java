@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,11 +27,6 @@ public class AdapterView extends BaseAdapter
     }
 
     @Override
-    public int getCount() {
-        return itemNom.size();
-    }
-
-    @Override
     public Object getItem(int i) {
         return null;
     }
@@ -40,6 +34,11 @@ public class AdapterView extends BaseAdapter
     @Override
     public long getItemId(int i) {
         return i;
+    }
+
+    @Override
+    public int getCount() {
+        return itemNom.size();
     }
 
     @SuppressLint({"ViewHolder", "SetTextI18n"})
@@ -75,7 +74,7 @@ public class AdapterView extends BaseAdapter
         idL.setTextColor(textColor);
 
         EditText nom = row.findViewById(R.id.nomContactInList);
-        nom.setText(key.getNom());
+        nom.setText(key.getName());
         nom.setTextColor(textColor);
 
         nom.addTextChangedListener(new TextWatcher() {
@@ -92,7 +91,7 @@ public class AdapterView extends BaseAdapter
             @Override
             public void afterTextChanged(Editable editable) {
                 // On modifie le nom avec celui modifié
-                key.setNom(editable.toString());
+                key.setName(editable.toString());
             }
         });
 

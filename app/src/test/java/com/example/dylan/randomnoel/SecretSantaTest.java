@@ -1,11 +1,5 @@
 package com.example.dylan.randomnoel;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -15,6 +9,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class SecretSantaTest {
 
@@ -38,6 +38,7 @@ public class SecretSantaTest {
     private static final Nom dylan = new Nom("Dylan", "+33606060614", 4, 4);
     private static final Nom oceane = new Nom("Oceane", "+33606060615", 4, 4);
     private static final Nom jp = new Nom("Jean-Pierre", "+33606060616", 4, 4);
+
 
     @BeforeClass
     public static void setup() {

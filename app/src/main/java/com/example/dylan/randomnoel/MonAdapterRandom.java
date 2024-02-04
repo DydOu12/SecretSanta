@@ -9,17 +9,17 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Dylan on 13/04/2017.
  */
 public class MonAdapterRandom extends BaseAdapter
 {
-    private final HashMap<Nom,Nom> itemNom;
+    private final Map<Nom,Nom> itemNom;
 
-    public MonAdapterRandom(HashMap<Nom,Nom> items) {
+    public MonAdapterRandom(Map<Nom,Nom> items) {
         itemNom = items;
     }
 
@@ -68,7 +68,7 @@ public class MonAdapterRandom extends BaseAdapter
 
         TextView nom = row.findViewById(R.id.assocNoms);
         assert value != null;
-        nom.setText(key.getNom() + ", tu auras : " + value.getNom());
+        nom.setText(key.getName() + ", tu auras : " + value.getName());
         nom.setTextColor(textColor);
 
         return(row);

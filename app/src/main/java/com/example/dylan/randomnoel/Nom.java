@@ -3,26 +3,26 @@ package com.example.dylan.randomnoel;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import androidx.annotation.NonNull;
-
 import java.io.Serializable;
 import java.util.Objects;
+
+import androidx.annotation.NonNull;
 
 /**
  * Created by Dylan on 08/04/2017.
  */
 public class Nom implements Parcelable, Serializable {
-    private String nom;
+    private String name;
     private String numero;
     private Integer groupe;
     private Integer couleur;
 
-    public Nom(String n, String numero, Integer groupe, Integer couleur) { this.nom = n; this.numero = numero; this.groupe = groupe; this.couleur = couleur; }
+    public Nom(String n, String numero, Integer groupe, Integer couleur) { this.name = n; this.numero = numero; this.groupe = groupe; this.couleur = couleur; }
 
-    public Nom(String n, String numero) { this.nom = n; this.numero = numero; }
+    public Nom(String n, String numero) { this.name = n; this.numero = numero; }
 
-    public String getNom() {
-        return nom;
+    public String getName() {
+        return name;
     }
 
     public void setGroupe(Integer groupe) {
@@ -33,8 +33,8 @@ public class Nom implements Parcelable, Serializable {
         this.couleur = couleur;
     }
 
-    public void setNom(String nom) {
-        this.nom = nom;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setNumero(String numero) {
@@ -57,7 +57,7 @@ public class Nom implements Parcelable, Serializable {
     @Override
     public String toString() {
         return "Nom{" +
-                "nom='" + nom + '\'' +
+                "nom='" + name + '\'' +
                 ", numero='" + numero + '\'' +
                 ", groupe=" + groupe +
                 ", couleur=" + couleur +
@@ -65,7 +65,7 @@ public class Nom implements Parcelable, Serializable {
     }
 
     protected Nom(Parcel in) {
-        nom = in.readString();
+        name = in.readString();
         numero = in.readString();
         couleur = in.readInt();
         groupe = in.readInt();
@@ -90,7 +90,7 @@ public class Nom implements Parcelable, Serializable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(nom);
+        parcel.writeString(name);
         parcel.writeString(numero);
         parcel.writeInt(couleur);
         parcel.writeInt(groupe);
@@ -106,6 +106,6 @@ public class Nom implements Parcelable, Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(nom, numero, groupe, couleur);
+        return Objects.hash(name, numero, groupe, couleur);
     }
 }

@@ -146,11 +146,9 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
                 phoneNumber = from.getNumero();
                 toName = to.getNom();
 
-                System.out.println("Coucou, pour le Père Nöel Secret, tu as : " + toName);
-
                 smsManager.sendTextMessage(phoneNumber,
                         null,
-                        "Coucou, pour le Père Nöel Secret, tu as : " + toName,
+                        "Coucou, pour le Père Noël Secret, tu as : " + toName,
                         null,
                         null);
 

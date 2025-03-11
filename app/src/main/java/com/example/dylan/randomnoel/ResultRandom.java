@@ -6,11 +6,14 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.dylan.randomnoel.databinding.ActivityRandomBinding;
+import com.google.android.material.navigation.NavigationView;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -23,13 +26,16 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 /**
  * Created by Dylan on 09/04/2017.
  */
-public class ResultRandom extends AppCompatActivity implements View.OnClickListener
+public class ResultRandom extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener
 {
     private HashMap<Nom,Nom> association;
 
@@ -39,22 +45,27 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
 
     private static final String LISTE_NOMS = "listeNoms";
 
-    public static List<Nom> choixPossible(List<Nom> noms, Integer groupe){
+    private DrawerLayout drawerLayout;
 
-        return noms
-                .stream()
-                .filter(n -> !n.getGroupe().equals(groupe))
-                .collect(Collectors.toList());
-    }
+    private DatabaseHelper databaseHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_random);
+        com.example.dylan.randomnoel.databinding.ActivityRandomBinding binding = ActivityRandomBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        setSupportActionBar(binding.toolbar);
 
-        TextView titre = findViewById(R.id.titre);
-        titre.setTextSize(50);
+        drawerLayout = binding.drawerLayout;
+        NavigationView navigationView = binding.navView;
+        navigationView.setNavigationItemSelectedListener(this);
+
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawerLayout, binding.toolbar,
+                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
 
         MonAdapterRandom monAdapter;
         ListView lv;
@@ -109,6 +120,40 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
 
         Button sendMessage = findViewById(R.id.sms);
         sendMessage.setOnClickListener(this);
+
+        // Initialize the database helper
+        databaseHelper = new DatabaseHelper(this);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.nav_main_activity) {
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.nav_history) {
+            Intent intent = new Intent(this, HistoryActivity.class);
+            startActivity(intent);
+        }
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
+    }
+    @Override
+    public void onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    public static List<Nom> choixPossible(List<Nom> noms, Integer groupe){
+
+        return noms
+                .stream()
+                .filter(n -> !n.getGroupe().equals(groupe))
+                .collect(Collectors.toList());
     }
 
     private void sendMessage() {
@@ -126,7 +171,17 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
             return;
         }
 
+        // Add association to database
+        association.entrySet()
+                .iterator()
+                .forEachRemaining(it ->
+                        databaseHelper.insertAssociation(
+                                it.getKey().getName(),
+                                it.getValue().getName()));
+
+        // Send SMS
         this.sendSMSBySmsManager();
+
     }
 
     private void sendSMSBySmsManager()  {

@@ -16,17 +16,21 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="false">
-        <activity android:name=".MainActivity"
+        <activity
+            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".ResultRandom"
             android:label="Qui a qui ?">
+        </activity>
+        <activity
+            android:name=".HistoryActivity"
+            android:label="Qui avait qui ?">
         </activity>
     </application>
 

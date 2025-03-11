@@ -1,14 +1,16 @@
 <resources>
     <string name="app_name">RandomNoel</string>
     <string name="contact_liste_groupe">%1$d - %2$s - %3$s - %4$d</string>
-    <string name="contact">Contact</string>
-    <string name="group">Groupe</string>
     <string name="add">Ajouter</string>
     <string name="random">Random</string>
-    <string name="attribution">%1$s, tu auras : %2s</string>
-    <string name="whosewho">Qui à qui ?</string>
     <string name="send">Envoyer SMS</string>
     <string name="suppr">Suppr</string>
     <string name="num_group">Numéro - groupe</string>
     <string name="idL">1</string>
+    <string name="history_item">History Item</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="placeholder_groupe">n° groupe</string>
+    <string name="main_activity_drawer">Main Activity</string>
+    <string name="history_drawer">History</string>
 </resources>

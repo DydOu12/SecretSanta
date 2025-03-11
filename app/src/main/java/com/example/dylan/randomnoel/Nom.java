@@ -7,62 +7,23 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Created by Dylan on 08/04/2017.
  */
+@Getter
+@Setter
+@AllArgsConstructor
 public class Nom implements Parcelable, Serializable {
     private String name;
     private String numero;
     private Integer groupe;
     private Integer couleur;
 
-    public Nom(String n, String numero, Integer groupe, Integer couleur) { this.name = n; this.numero = numero; this.groupe = groupe; this.couleur = couleur; }
-
     public Nom(String n, String numero) { this.name = n; this.numero = numero; }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setGroupe(Integer groupe) {
-        this.groupe = groupe;
-    }
-
-    public void setCouleur(Integer couleur) {
-        this.couleur = couleur;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setNumero(String numero) {
-        this.numero = numero;
-    }
-
-    public Integer getGroupe() {
-        return groupe;
-    }
-
-    public Integer getCouleur() {
-        return couleur;
-    }
-
-    public String getNumero() {
-        return numero;
-    }
-
-    @NonNull
-    @Override
-    public String toString() {
-        return "Nom{" +
-                "nom='" + name + '\'' +
-                ", numero='" + numero + '\'' +
-                ", groupe=" + groupe +
-                ", couleur=" + couleur +
-                '}';
-    }
 
     protected Nom(Parcel in) {
         name = in.readString();
@@ -71,7 +32,7 @@ public class Nom implements Parcelable, Serializable {
         groupe = in.readInt();
     }
 
-    public static final Parcelable.Creator<Nom> CREATOR = new Parcelable.Creator<Nom>() {
+    public static final Parcelable.Creator<Nom> CREATOR = new Parcelable.Creator<>() {
         @Override
         public Nom createFromParcel(Parcel in) {
             return new Nom(in);
@@ -99,13 +60,18 @@ public class Nom implements Parcelable, Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Nom)) return false;
-        Nom nom1 = (Nom) o;
+        if (!(o instanceof Nom nom1)) return false;
         return Objects.equals(numero, nom1.numero);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(name, numero, groupe, couleur);
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return name;
     }
 }

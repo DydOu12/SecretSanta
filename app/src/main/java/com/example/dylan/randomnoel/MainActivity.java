@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.provider.ContactsContract;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -16,6 +17,9 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+import com.example.dylan.randomnoel.databinding.ActivityMainBinding;
+import com.google.android.material.navigation.NavigationView;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -25,10 +29,13 @@ import java.util.List;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
 
     // Request code for READ_CONTACTS. It can be any number > 0.
     private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 100;
@@ -41,16 +48,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private int remainingClickEasterEgg = 5;
 
-    private SecureRandom r = new SecureRandom();
+    private final SecureRandom r = new SecureRandom();
 
     private static final String LISTE_NOMS = "listeNoms";
+
+    private DrawerLayout drawerLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //Définissez votre vue, rien de plus. Tout sera pris en charge par le fragment qui affiche les données
-        setContentView(R.layout.activity_main_fragment);
+        com.example.dylan.randomnoel.databinding.ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        setSupportActionBar(binding.toolbar);
+
+        drawerLayout = binding.drawerLayout;
+        NavigationView navigationView = binding.navView;
+        navigationView.setNavigationItemSelectedListener(this);
+
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawerLayout, binding.toolbar,
+                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
 
         accordPermission();
 
@@ -65,6 +85,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Button ok = findViewById(R.id.random);
         ok.setOnClickListener(this);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.nav_history) {
+            Intent intent = new Intent(this, HistoryActivity.class);
+            startActivity(intent);
+        }
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -119,7 +160,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void addContact() {
-        List<String> contacts = new ArrayList<>();
+        List<Nom> contacts = new ArrayList<>();
 
         Cursor c = getContentResolver().query(
                 ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
@@ -135,14 +176,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         .getString(c
                                 .getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
 
-                contacts.add(contactName + ":" + phNumber);
+                contacts.add(new Nom(contactName, phNumber));
 
             }
             c.close();
         }
 
         Spinner s = findViewById(R.id.nomContact);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+        ArrayAdapter<Nom> adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_dropdown_item, contacts);
         s.setAdapter(adapter);
     }
@@ -268,10 +309,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void ajouter(View v){
 
         Spinner listeContacts = findViewById(R.id.nomContact);
-        String fullContact = listeContacts.getSelectedItem().toString();
+        Nom fullContact = (Nom) listeContacts.getSelectedItem();
 
-        String nom = fullContact.substring(0, fullContact.indexOf(':'));
-        String numero = fullContact.substring(fullContact.indexOf(':')+1);
+        String nom = fullContact.getName();
+        String numero = fullContact.getNumero();
         EditText groupe = findViewById(R.id.groupe);
 
         Nom n = new Nom(nom, numero);

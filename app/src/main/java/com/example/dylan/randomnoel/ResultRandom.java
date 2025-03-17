@@ -18,7 +18,6 @@ import com.google.android.material.navigation.NavigationView;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -37,7 +36,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
  */
 public class ResultRandom extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener
 {
-    private HashMap<Nom,Nom> association;
+    private Map<Nom,Nom> association;
 
     private static final int MY_PERMISSION_REQUEST_CODE_SEND_SMS = 100;
 
@@ -70,14 +69,17 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
         MonAdapterRandom monAdapter;
         ListView lv;
         if(savedInstanceState != null){
-            association = (HashMap<Nom,Nom>)savedInstanceState.getSerializable(LISTE_NOMS);
+            SaveAssociation saveAssociation = savedInstanceState.getParcelable(LISTE_NOMS, SaveAssociation.class);
+            if(saveAssociation != null) {
+                association = saveAssociation.getAssociation();
+            }
             monAdapter = new MonAdapterRandom(association);
             lv = findViewById(R.id.listeNomsAssocies);
             lv.setAdapter(monAdapter);
         }
         else {
             // contient la liste des noms associés aux groupe
-            List<Nom> listeNoms = (List<Nom>) getIntent().getSerializableExtra(LISTE_NOMS);
+            List<Nom> listeNoms = getIntent().getParcelableArrayListExtra(LISTE_NOMS, Nom.class);
 
             // on les trie par groupe (car ils ne le sont pas)
             assert listeNoms != null;
@@ -226,7 +228,8 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
     public void onSaveInstanceState(@NonNull Bundle saveInstanceState) {
         super.onSaveInstanceState(saveInstanceState);
 
-        saveInstanceState.putSerializable(LISTE_NOMS, association);
+        SaveAssociation saveAssociation = new SaveAssociation(association);
+        saveInstanceState.putParcelable(LISTE_NOMS, saveAssociation);
     }
 
     // When you have the request results

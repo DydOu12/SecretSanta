@@ -72,11 +72,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
+        binding.groupe.setOnClickListener(v -> egg());
+
         accordPermission();
 
-        if(savedInstanceState != null)
-        {
-            noms = (ArrayList<Nom>) savedInstanceState.getSerializable(LISTE_NOMS);
+        if (savedInstanceState != null) {
+            SaveNoms listeNoms = savedInstanceState.getParcelable(LISTE_NOMS, SaveNoms.class);
+
+            if (listeNoms != null) {
+                noms = listeNoms.getNoms();
+            }
             monAdapter = new AdapterView(noms);
         }
 
@@ -137,8 +142,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onSaveInstanceState(@NonNull Bundle saveInstanceState) {
         super.onSaveInstanceState(saveInstanceState);
-
-        saveInstanceState.putParcelableArrayList(LISTE_NOMS, (ArrayList<? extends Parcelable>) noms);
+        saveInstanceState.putParcelable(LISTE_NOMS, new SaveNoms(noms));
     }
 
     public void accordPermission() {
@@ -254,7 +258,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             .orElse(null);
     }
 
-    public void egg(View v) {
+    private void egg() {
          --remainingClickEasterEgg;
 
          if(remainingClickEasterEgg < 3 && remainingClickEasterEgg > 0)

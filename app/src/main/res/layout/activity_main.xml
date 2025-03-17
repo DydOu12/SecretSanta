@@ -73,7 +73,6 @@
             android:hint="@string/placeholder_groupe"
             android:inputType="number"
             android:minHeight="48dp"
-            android:onClick="egg"
             app:layout_constraintEnd_toStartOf="@+id/ajouter"
             app:layout_constraintTop_toBottomOf="@+id/toolbar" />
     </androidx.constraintlayout.widget.ConstraintLayout>

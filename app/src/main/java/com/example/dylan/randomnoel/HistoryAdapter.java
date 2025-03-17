@@ -10,6 +10,7 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import lombok.Getter;
 
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryViewHolder> {
 
@@ -19,8 +20,9 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
         this.history = history;
     }
 
+    @Getter
     public static class HistoryViewHolder extends RecyclerView.ViewHolder {
-        public TextView textViewHistoryItem;
+        private final TextView textViewHistoryItem;
 
         public HistoryViewHolder(ItemHistoryBinding binding) {
             super(binding.getRoot());
@@ -39,7 +41,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
     @Override
     public void onBindViewHolder(@NonNull HistoryViewHolder holder, int position) {
         String historyItem = history.get(position);
-        holder.textViewHistoryItem.setText(historyItem);
+        holder.getTextViewHistoryItem().setText(historyItem);
     }
 
     @Override

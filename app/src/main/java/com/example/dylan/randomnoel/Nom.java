@@ -32,7 +32,7 @@ public class Nom implements Parcelable, Serializable {
         groupe = in.readInt();
     }
 
-    public static final Parcelable.Creator<Nom> CREATOR = new Parcelable.Creator<>() {
+    public static final Parcelable.Creator<Nom> CREATOR = new Creator<>() {
         @Override
         public Nom createFromParcel(Parcel in) {
             return new Nom(in);

@@ -1,5 +1,5 @@
 plugins {
-    id "org.sonarqube" version "4.4.1.3373"
+    id "org.sonarqube" version "6.0.1.5171"
 }
 
 apply plugin: 'com.android.application'
@@ -10,8 +10,8 @@ android {
 
     defaultConfig {
         applicationId "com.example.dylan.randomnoel"
-        minSdkVersion 26
-        targetSdkVersion 35
+        minSdk 33
+        targetSdk 35
         versionCode 1
         versionName "1.0"
     }

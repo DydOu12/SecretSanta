@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -22,7 +23,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -128,6 +128,16 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if(drawerLayout.isDrawerOpen(GravityCompat.START))
+                drawerLayout.closeDrawer(GravityCompat.START);
+            else return super.onKeyDown(keyCode, event);
+        }
+        return false;
+    }
+
+    @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
 
@@ -141,21 +151,13 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
-    @Override
-    public void onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }
 
     public static List<Nom> choixPossible(List<Nom> noms, Integer groupe){
 
         return noms
                 .stream()
                 .filter(n -> !n.getGroupe().equals(groupe))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private void sendMessage() {
@@ -197,7 +199,7 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
 
         try {
             // Get the default instance of the SmsManager
-            SmsManager smsManager = SmsManager.getDefault();
+            SmsManager smsManager = this.getSystemService(SmsManager.class);
 
             // Send Message
             while(it.hasNext()) {

@@ -1,5 +1,38 @@
 plugins {
     id "org.sonarqube" version "6.0.1.5171"
+    id 'jacoco'
+}
+
+jacoco {
+    toolVersion = "0.8.10" // utilisez la version compatible avec votre JDK
+}
+
+tasks.register('jacocoTestReport', JacocoReport) {
+    dependsOn 'testDebugUnitTest'  // Utilisez la tâche de test de debug
+
+    reports {
+        xml.required = true
+        xml.outputLocation = layout.buildDirectory.file("reports/jacoco/jacoco.xml")
+        html.required = true
+        html.outputLocation = layout.buildDirectory.dir("reports/jacoco/html")
+    }
+
+    def fileFilter = ['**/R.class', '**/R$*.class', '**/BuildConfig.*', '**/Manifest*.*', '**/*Test*.*', 'android/**/*.*']
+
+    // Pour les projets Android, utilisez ces chemins
+    def debugTree = fileTree(dir: layout.buildDirectory.dir("intermediates/javac/debug").get().asFile, excludes: fileFilter)
+    // Si le chemin ci-dessus ne fonctionne pas, essayez celui-ci pour les projets plus anciens :
+    // def debugTree = fileTree(dir: "${buildDir}/intermediates/classes/debug", excludes: fileFilter)
+
+    sourceDirectories.from = files('src/main/java')
+    classDirectories.from = files([debugTree])
+
+    // Recherchez les fichiers d'exécution dans différents emplacements possibles
+    executionData.setFrom(fileTree(dir: layout.buildDirectory.get().asFile, includes: [
+            'outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec',
+            'jacoco/testDebugUnitTest.exec',
+            '**/*.exec'
+    ]))
 }
 
 apply plugin: 'com.android.application'
@@ -10,13 +43,17 @@ android {
 
     defaultConfig {
         applicationId "com.example.dylan.randomnoel"
-        minSdk 33
+        minSdk 34
         targetSdk 35
         versionCode 1
         versionName "1.0"
     }
     buildTypes {
+        debug {
+            testCoverageEnabled true  // Activer la couverture pour les builds de debug
+        }
         release {
+            testCoverageEnabled true
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.provider.ContactsContract;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -73,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         toggle.syncState();
 
         binding.groupe.setOnClickListener(v -> egg());
+        binding.ajouter.setOnClickListener(v -> ajouter());
 
         accordPermission();
 
@@ -105,12 +107,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    public void onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if(drawerLayout.isDrawerOpen(GravityCompat.START))
+                drawerLayout.closeDrawer(GravityCompat.START);
+            else return super.onKeyDown(keyCode, event);
         }
+        return false;
     }
 
     @Override
@@ -310,7 +313,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
          }
     }
 
-    public void ajouter(View v){
+    public void ajouter(){
 
         Spinner listeContacts = findViewById(R.id.nomContact);
         Nom fullContact = (Nom) listeContacts.getSelectedItem();

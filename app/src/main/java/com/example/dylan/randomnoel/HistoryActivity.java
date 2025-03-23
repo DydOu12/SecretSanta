@@ -2,6 +2,7 @@ package com.example.dylan.randomnoel;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -59,6 +60,16 @@ public class HistoryActivity extends AppCompatActivity implements NavigationView
         initializeSpinner();
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if(drawerLayout.isDrawerOpen(GravityCompat.START))
+                drawerLayout.closeDrawer(GravityCompat.START);
+            else return super.onKeyDown(keyCode, event);
+        }
+        return false;
+    }
+
     private void initializeSpinner() {
         // Load all distinct dates from the database
         List<String> allDates = databaseHelper.getAllDates();
@@ -100,14 +111,5 @@ public class HistoryActivity extends AppCompatActivity implements NavigationView
         }
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
     }
 }

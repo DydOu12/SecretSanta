@@ -4,7 +4,7 @@ plugins {
 }
 
 jacoco {
-    toolVersion = "0.8.10" // utilisez la version compatible avec votre JDK
+    toolVersion = "0.8.11" // utilisez la version compatible avec votre JDK
 }
 
 tasks.register('jacocoTestReport', JacocoReport) {
@@ -48,6 +48,7 @@ android {
         versionCode 1
         versionName "1.0"
     }
+
     buildTypes {
         debug {
             testCoverageEnabled true  // Activer la couverture pour les builds de debug
@@ -58,13 +59,33 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+
     namespace 'com.example.dylan.randomnoel'
+
     buildFeatures {
         viewBinding true
+    }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+            all {
+                systemProperty 'robolectric.sdk.version', 34
+                systemProperty 'robolectric.logging', 'stdout'
+
+                // Activer les logs détaillés
+                jvmArgs '-Drobolectric.logging=stdout'
+
+                // Configuration supplémentaire pour les ressources
+                systemProperty 'android.manifest', 'app/src/main/AndroidManifest.xml'
+                systemProperty 'android.resources', 'src/main/res'
+            }
+        }
     }
 }
 
@@ -81,8 +102,15 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7'
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
     implementation 'com.google.android.material:material:1.12.0'
-    testImplementation 'junit:junit:4.13.2'
 
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.mockito:mockito-core:5.16.0' //Mockito
+    testImplementation 'org.mockito:mockito-inline:5.2.0' // Pour mock les class final
+    testImplementation 'org.jacoco:org.jacoco.core:0.8.11'
+
+    // Pour l'utilisation de lombok
     compileOnly 'org.projectlombok:lombok:1.18.28'
     annotationProcessor 'org.projectlombok:lombok:1.18.28'
+    testCompileOnly 'org.projectlombok:lombok:1.18.28'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.28'
 }

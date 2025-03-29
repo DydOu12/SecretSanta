@@ -11,6 +11,6 @@ Pour lancer une analyse SONAR :
   -Dsonar.sourceEncoding=UTF-8 \
   -Dsonar.host.url=http://localhost:8080 \
   -Dsonar.token=sqp_160da277816c21f1030cdfad955680a40699b820 \
-  -Dsonar.tests=app/src/test/java \
+  -Dsonar.tests=src/test/java \
   -Dsonar.java.coveragePlugin=jacoco \
-  -Dsonar.coverage.jacoco.xmlReportPaths=app/build/reports/jacoco/jacoco.xml``
+  -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/jacoco.xml``

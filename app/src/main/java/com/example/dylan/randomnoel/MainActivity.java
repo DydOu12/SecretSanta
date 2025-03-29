@@ -41,11 +41,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // Request code for READ_CONTACTS. It can be any number > 0.
     private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 100;
 
-    protected static List<Nom> noms = new ArrayList<>();
+    protected List<Nom> noms = new ArrayList<>();
 
     private AdapterView monAdapter = new AdapterView(noms);
 
-    private ListView listNoms;
+    protected ListView listNoms;
 
     private int remainingClickEasterEgg = 5;
 
@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private static final String LISTE_NOMS = "listeNoms";
 
-    private DrawerLayout drawerLayout;
+    protected DrawerLayout drawerLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,6 +148,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         saveInstanceState.putParcelable(LISTE_NOMS, new SaveNoms(noms));
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSIONS_REQUEST_READ_CONTACTS) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                addContact();
+            } else {
+                Toast.makeText(this, "Until you grant the permission, we cannot display the names", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    public static List<Nom> getNoms(MainActivity mainActivity){
+        return mainActivity.noms;
+    }
+
     public void accordPermission() {
 
         // Check if we have send SMS permission
@@ -200,10 +217,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * @return l'association du nombre de personne par groupe
      *
      */
-    public static Map<Integer, Integer> getNumberOfPersonByGroupe() {
+    public Map<Integer, Integer> getNumberOfPersonByGroupe() {
         Map<Integer, Integer> map = new HashMap<>();
 
-        noms.forEach(nom -> map.merge(nom.getGroupe(), 1, Integer::sum));
+        getNoms(this).forEach(nom -> map.merge(nom.getGroupe(), 1, Integer::sum));
 
         return map;
     }
@@ -238,21 +255,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .reduce(true, Boolean::logicalAnd);
     }
 
-    // pour savoir si un élément est dejà présent dans la liste
-    public static boolean estPresent(Nom nom){
-
-            return noms
-                    .contains(nom);
-    }
-
     /**
      *
      * @param groupe le groupe du nom
      * @return la couleur associee au groupe ou null s'il n'exite pas
      */
-     public static Integer getCouleurIfGroupePresent(Integer groupe) {
+     public Integer getCouleurIfGroupePresent(Integer groupe) {
 
-         return noms
+         return getNoms(this)
             .stream()
             .filter(nom ->
                 nom.getGroupe().equals(groupe))
@@ -313,7 +323,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
          }
     }
 
-    public void ajouter(){
+    public void ajouter() {
 
         Spinner listeContacts = findViewById(R.id.nomContact);
         Nom fullContact = (Nom) listeContacts.getSelectedItem();
@@ -323,15 +333,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         EditText groupe = findViewById(R.id.groupe);
 
         Nom n = new Nom(nom, numero);
-        if(!nom.isEmpty() && !groupe.getText().toString().isEmpty()) {
+        if (!nom.isEmpty() && !groupe.getText().toString().isEmpty()) {
             String val = String.valueOf(groupe.getText());
             int i = Integer.parseInt(val);
-            if(!estPresent(n)) {
+            if (!getNoms(this).contains(n)) {
 
                 Integer couleur = getCouleurIfGroupePresent(i);
 
                 // pour changer la couleur
-                if(couleur == null){
+                if (couleur == null) {
                     couleur = Color.rgb(r.nextInt(256), r.nextInt(256), r.nextInt(256));
                 }
 
@@ -342,14 +352,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 // pour trier la liste des noms par groupe (qu'elles soient dans l'ordre croissant)
                 noms.sort(Comparator.comparing(Nom::getGroupe));
-            }
-            else {
+            } else {
                 Toast.makeText(MainActivity.this, "Déjà présent", Toast.LENGTH_SHORT).show();
             }
-        }
-        else
-        {
-            if(groupe.getText().toString().isEmpty())
+        } else {
+            if (groupe.getText().toString().isEmpty())
                 Toast.makeText(MainActivity.this, "groupe vide", Toast.LENGTH_SHORT).show();
             else
                 Toast.makeText(MainActivity.this, "Nom vide", Toast.LENGTH_SHORT).show();
@@ -359,18 +366,4 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         listNoms.setAdapter(monAdapter);
     }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == PERMISSIONS_REQUEST_READ_CONTACTS) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                addContact();
-            } else {
-                Toast.makeText(this, "Until you grant the permission, we cannot display the names", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
 }

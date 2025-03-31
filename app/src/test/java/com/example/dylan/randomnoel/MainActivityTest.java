@@ -1,7 +1,9 @@
 package com.example.dylan.randomnoel;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.graphics.Color;
@@ -20,7 +22,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
@@ -35,10 +36,12 @@ import java.util.Map;
 import androidx.annotation.NonNull;
 import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.arch.core.executor.TaskExecutor;
+import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
 
+import static com.example.dylan.randomnoel.MainActivity.PERMISSIONS_REQUEST_READ_CONTACTS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -48,10 +51,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -86,13 +91,16 @@ public class MainActivityTest {
     @Mock
     private Intent mockIntent;
 
-    private MainActivity mainActivitySpy;
+    @Mock
+    private KeyEvent mockKeyEvent;
 
     private MockedStatic<Toast> mockedToast;
 
     private MockedStatic<Looper> mockedLooper;
 
     private MockedConstruction<Intent> mockedIntent;
+
+    private MainActivity mainActivitySpy;
 
     @Before
     public void setUp() {
@@ -105,9 +113,7 @@ public class MainActivityTest {
         mockedLooper.when(Looper::myLooper).thenReturn(mock(Looper.class));
         mockedLooper.when(Looper::getMainLooper).thenReturn(mock(Looper.class));
 
-        mockedIntent = mockConstruction(Intent.class, (mock, context) -> {
-            when(mock.putParcelableArrayListExtra(anyString(), any(ArrayList.class))).thenReturn(mock);
-        });
+        mockedIntent = mockConstruction(Intent.class, (mock, context) -> when(mock.putParcelableArrayListExtra(anyString(), any(ArrayList.class))).thenReturn(mock));
 
         ArchTaskExecutor.getInstance().setDelegate(new TaskExecutor() {
             @Override
@@ -134,6 +140,8 @@ public class MainActivityTest {
         // Set up mocked fields
         mainActivitySpy.listNoms = mockListView;
 
+        mainActivitySpy.drawerLayout = mockDrawerLayout;
+
         // Initialiser la liste noms
         mainActivitySpy.noms = new ArrayList<>();
 
@@ -159,8 +167,158 @@ public class MainActivityTest {
         if(mockedIntent != null) {
             mockedIntent.close();
         }
+
         ArchTaskExecutor.getInstance().setDelegate(null);
     }
+
+    @Test
+    public void testOnCreate() {
+        // TODO
+    }
+
+
+    @Test
+    public void testOnNavigationItemSelected_History() {
+        // Setup test
+        when(mockMenuItem.getItemId()).thenReturn(R.id.nav_history);
+
+        paramOnNavigationItemSelected();
+    }
+
+    @Test
+    public void testOnNavigationItemSelected_Stay() {
+        // Setup test
+        when(mockMenuItem.getItemId()).thenReturn(R.id.nav_main_activity);
+
+        paramOnNavigationItemSelected();
+
+        verify(mainActivitySpy, never()).startActivity(any(Intent.class));
+    }
+
+    private void paramOnNavigationItemSelected() {
+        doNothing().when(mainActivitySpy).startActivity(any(Intent.class));
+
+        // Execute test
+        boolean result = mainActivitySpy.onNavigationItemSelected(mockMenuItem);
+
+        // Verify results
+        assertTrue(result);
+        verify(mockDrawerLayout).closeDrawer(any(Integer.class));
+    }
+
+    @Test
+    public void testOnKeyDown_BackNotPressed() {
+        // Execute test
+        boolean result = mainActivitySpy.onKeyDown(KeyEvent.KEYCODE_0, mockKeyEvent);
+
+        // Verify results
+        assertFalse(result);
+    }
+
+    @Test
+    public void testOnKeyDown_BackPressed_DrawerOpen() {
+        // Setup test
+        when(mockDrawerLayout.isDrawerOpen(anyInt())).thenReturn(true);
+
+        // Execute test
+        boolean result = mainActivitySpy.onKeyDown(KeyEvent.KEYCODE_BACK, mockKeyEvent);
+
+        // Verify results
+        assertFalse(result);
+        verify(mockDrawerLayout).closeDrawer(anyInt());
+    }
+
+    @Test
+    public void testOnKeyDown_BackPressed_DrawerClosed() {
+        // TODO
+    }
+
+    @Test
+    public void testOnClick_NotEnoughPeople() {
+        // Setup test
+        mainActivitySpy.noms = new ArrayList<>(); // Empty list = not enough people
+
+        mainActivitySpy.onClick(mockView);
+
+        mockedToast.verify(() -> Toast.makeText(eq(mainActivitySpy), eq("Entrez au moins deux personnes !"), anyInt()));
+    }
+
+    @Test
+    public void testOnClick_ImpossibleAssociation() {
+
+        // Setup noms with impossible association
+        List<Nom> testNoms = new ArrayList<>();
+        testNoms.add(new Nom("Test1", "123", 1, Color.RED));
+        testNoms.add(new Nom("Test2", "456", 1, Color.RED));
+        testNoms.add(new Nom("Test3", "789", 1, Color.RED));
+        mainActivitySpy.noms = testNoms;
+
+        // Mock getNumberOfPersonByGroupe to return a map
+        Map<Integer, Integer> groupMap = new HashMap<>();
+        groupMap.put(1, 3); // All 3 in the same group - impossible association
+        doReturn(groupMap).when(mainActivitySpy).getNumberOfPersonByGroupe();
+
+        // Execute test
+        mainActivitySpy.onClick(mockView);
+
+        mockedToast.verify(() -> Toast.makeText(eq(mainActivitySpy), eq("Association impossible !"), anyInt()));
+    }
+
+    @Test
+    public void testOnClick_ModifyNames() {
+        List<Nom> noms = new ArrayList<>();
+        noms.add(new Nom("Test1", "123", 1, Color.RED));
+        noms.add(new Nom("Test2", "456", 1, Color.RED));
+        mainActivitySpy.noms = noms;
+
+        View child1 = mock(View.class);
+        View child2 = mock(View.class);
+        EditText editText1 = mock(EditText.class);
+        EditText editText2 = mock(EditText.class);
+
+        when(mockListView.getChildCount()).thenReturn(2);
+        when(mockListView.getChildAt(0)).thenReturn(child1);
+        when(mockListView.getChildAt(1)).thenReturn(child2);
+        when(child1.findViewById(R.id.nomContactInList)).thenReturn(editText1);
+        when(child2.findViewById(R.id.nomContactInList)).thenReturn(editText2);
+
+        when(editText1.getText()).thenReturn(mock(android.text.Editable.class));
+        when(editText2.getText()).thenReturn(mock(android.text.Editable.class));
+
+        when(editText1.getText().toString()).thenReturn("Modified1");
+        when(editText2.getText().toString()).thenReturn("Modified2");
+
+        mainActivitySpy.listNoms = mockListView;
+
+        mainActivitySpy.onClick(mockView);
+
+        assertEquals("Modified1", noms.get(0).getName());
+        assertEquals("Modified2", noms.get(1).getName());
+    }
+
+    @Test
+    public void testOnClick_StartActivity() {
+
+        // Setup noms with impossible association
+        List<Nom> testNoms = new ArrayList<>();
+        testNoms.add(new Nom("Test1", "123", 1, Color.RED));
+        testNoms.add(new Nom("Test2", "456", 2, Color.GREEN));
+        mainActivitySpy.noms = testNoms;
+
+        // Mock associationPossible to return true
+        doReturn(true).when(mainActivitySpy).associationPossible(any(Map.class));
+
+        doNothing().when(mainActivitySpy).startActivity(any(Intent.class));
+
+        // Execute test
+        mainActivitySpy.onClick(mockView);
+
+        verify(mainActivitySpy).startActivity(any(Intent.class));
+    }
+
+
+    // TODO revoir code onRequestPermissionsResult deprecated
+
 
     @Test
     public void testGetNoms() {
@@ -178,6 +336,72 @@ public class MainActivityTest {
         assertEquals(2, result.size());
         assertEquals("Test1", result.get(0).getName());
         assertEquals("Test2", result.get(1).getName());
+    }
+
+    @Test
+    public void testAccordPermission_PersmissionGranted() {
+        try(MockedStatic<ContextCompat> mock = mockStatic(ContextCompat.class)) {
+            mock.when(() ->
+                    ContextCompat.checkSelfPermission(mainActivitySpy, Manifest.permission.READ_CONTACTS)
+            ).thenReturn(PackageManager.PERMISSION_GRANTED);
+
+            doNothing().when(mainActivitySpy).addContact();
+
+            mainActivitySpy.accordPermission();
+
+            verify(mainActivitySpy).addContact();
+        }
+    }
+
+    @Test
+    public void testAccordPermission_PersmissionDenied() {
+        try(MockedStatic<ContextCompat> mock = mockStatic(ContextCompat.class)) {
+            mock.when(() ->
+                    ContextCompat.checkSelfPermission(mainActivitySpy, Manifest.permission.READ_CONTACTS)
+            ).thenReturn(PackageManager.PERMISSION_DENIED);
+
+            doNothing().when(mainActivitySpy).requestPermissions(any(String[].class), anyInt());
+
+            mainActivitySpy.accordPermission();
+
+            verify(mainActivitySpy).requestPermissions(
+                new String[]{Manifest.permission.READ_CONTACTS},
+                PERMISSIONS_REQUEST_READ_CONTACTS
+            );
+        }
+    }
+
+    @Ignore
+    @Test
+    public void testAddContact() {
+        // Create a MatrixCursor with contact data
+        MatrixCursor mockMatrixCursor = new MatrixCursor(
+                new String[] {
+                        ContactsContract.Contacts.DISPLAY_NAME,
+                        ContactsContract.CommonDataKinds.Phone.NUMBER
+                }
+        );
+
+        // Add data to the cursor
+        mockMatrixCursor.addRow(new Object[] {"John Doe", "1234567890"});
+        mockMatrixCursor.addRow(new Object[] {"Jane Smith", "0987654321"});
+
+        // Mock the content resolver to return our cursor
+        doReturn(mockMatrixCursor).when(mockContext.getContentResolver()).query(any(), any(), any(), any(), any());
+
+        // Mock findViewById to return our spinner
+        doReturn(mockSpinner).when(mainActivitySpy).findViewById(R.id.nomContact);
+
+        // Execute test - can't fully verify without Robolectric
+        // But we can test that code executes without exceptions
+        // and that specific methods are called
+        try {
+            mainActivitySpy.addContact();
+            // Test passes if no exception is thrown
+        } catch (Exception e) {
+            // Test will fail if exception occurs
+            throw new AssertionError("addContact threw an exception", e);
+        }
     }
 
     @Test
@@ -210,7 +434,7 @@ public class MainActivityTest {
         testData.put(3, 2); // 2 people in group 3
 
         // Execute test
-        boolean result = MainActivity.associationPossible(testData);
+        boolean result = mainActivitySpy.associationPossible(testData);
 
         // Verify results
         assertTrue(result);
@@ -225,7 +449,7 @@ public class MainActivityTest {
         testData.put(3, 2); // 2 people in group 3
 
         // Execute test
-        boolean result = MainActivity.associationPossible(testData);
+        boolean result = mainActivitySpy.associationPossible(testData);
 
         // Verify results
         assertFalse(result);
@@ -260,118 +484,6 @@ public class MainActivityTest {
 
         // Verify results
         assertNull(result);
-    }
-
-    @Ignore
-    @Test
-    public void testOnNavigationItemSelected_History() {
-        // Setup test
-        when(mockMenuItem.getItemId()).thenReturn(R.id.nav_history);
-        doReturn(mockContext).when(mainActivitySpy).getApplicationContext();
-
-        // Mock startActivity
-        ArgumentCaptor<Intent> intentCaptor = ArgumentCaptor.forClass(Intent.class);
-
-        // Mock drawer
-        mainActivitySpy.drawerLayout = mockDrawerLayout;
-
-        // Execute test
-        boolean result = mainActivitySpy.onNavigationItemSelected(mockMenuItem);
-
-        // Verify results
-        assertTrue(result);
-        verify(mockDrawerLayout).closeDrawer(any(Integer.class));
-    }
-
-    @Test
-    public void testOnKeyDown_BackPressed_DrawerOpen() {
-        // Setup test
-        mainActivitySpy.drawerLayout = mockDrawerLayout;
-        when(mockDrawerLayout.isDrawerOpen(anyInt())).thenReturn(true);
-
-        // Execute test
-        boolean result = mainActivitySpy.onKeyDown(KeyEvent.KEYCODE_BACK, mock(KeyEvent.class));
-
-        // Verify results
-        assertFalse(result);
-        verify(mockDrawerLayout).closeDrawer(anyInt());
-    }
-
-    @Test
-    public void testOnKeyDown_BackPressed_DrawerClosed() {
-        // Setup test
-        mainActivitySpy.drawerLayout = mockDrawerLayout;
-        doReturn(true).when(mainActivitySpy).onKeyDown(eq(KeyEvent.KEYCODE_BACK), any(KeyEvent.class));
-
-        // Execute test
-        mainActivitySpy.onKeyDown(KeyEvent.KEYCODE_BACK, mock(KeyEvent.class));
-
-        // Verify that super.onKeyDown is called
-        verify(mainActivitySpy).onKeyDown(eq(KeyEvent.KEYCODE_BACK), any(KeyEvent.class));
-    }
-
-    @Test
-    public void testOnClick_NotEnoughPeople() {
-        // Setup test
-        mainActivitySpy.noms = new ArrayList<>(); // Empty list = not enough people
-
-        mainActivitySpy.onClick(mockView);
-
-        mockedToast.verify(() -> Toast.makeText(eq(mainActivitySpy), eq("Entrez au moins deux personnes !"), anyInt()));
-    }
-
-    @Test
-    public void testOnClick_ImpossibleAssociation() {
-
-        // Setup noms with impossible association
-        List<Nom> testNoms = new ArrayList<>();
-        testNoms.add(new Nom("Test1", "123", 1, Color.RED));
-        testNoms.add(new Nom("Test2", "456", 1, Color.RED));
-        testNoms.add(new Nom("Test3", "789", 1, Color.RED));
-        mainActivitySpy.noms = testNoms;
-
-        // Mock getNumberOfPersonByGroupe to return a map
-        Map<Integer, Integer> groupMap = new HashMap<>();
-        groupMap.put(1, 3); // All 3 in the same group - impossible association
-        doReturn(groupMap).when(mainActivitySpy).getNumberOfPersonByGroupe();
-
-        // Execute test
-        mainActivitySpy.onClick(mockView);
-
-        // The test passes if we don't get any exceptions and the code follows the expected path
-    }
-
-    @Ignore
-    @Test
-    public void testAddContact() {
-        // Create a MatrixCursor with contact data
-        MatrixCursor mockMatrixCursor = new MatrixCursor(
-                new String[] {
-                        ContactsContract.Contacts.DISPLAY_NAME,
-                        ContactsContract.CommonDataKinds.Phone.NUMBER
-                }
-        );
-
-        // Add data to the cursor
-        mockMatrixCursor.addRow(new Object[] {"John Doe", "1234567890"});
-        mockMatrixCursor.addRow(new Object[] {"Jane Smith", "0987654321"});
-
-        // Mock the content resolver to return our cursor
-        doReturn(mockMatrixCursor).when(mockContext.getContentResolver()).query(any(), any(), any(), any(), any());
-
-        // Mock findViewById to return our spinner
-        doReturn(mockSpinner).when(mainActivitySpy).findViewById(R.id.nomContact);
-
-        // Execute test - can't fully verify without Robolectric
-        // But we can test that code executes without exceptions
-        // and that specific methods are called
-        try {
-            mainActivitySpy.addContact();
-            // Test passes if no exception is thrown
-        } catch (Exception e) {
-            // Test will fail if exception occurs
-            throw new AssertionError("addContact threw an exception", e);
-        }
     }
 
     @Ignore

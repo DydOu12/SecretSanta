@@ -39,7 +39,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
 
     // Request code for READ_CONTACTS. It can be any number > 0.
-    private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 100;
+    protected static final int PERMISSIONS_REQUEST_READ_CONTACTS = 100;
 
     protected List<Nom> noms = new ArrayList<>();
 
@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private final SecureRandom r = new SecureRandom();
 
-    private static final String LISTE_NOMS = "listeNoms";
+    protected static final String LISTE_NOMS = "listeNoms";
 
     protected DrawerLayout drawerLayout;
 
@@ -230,7 +230,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * @param assoPersonByGroup la map associant le nombre de personne par groupe
      * @return vrai si l'association entre les personnes est possible
      */
-    public static boolean associationPossible(Map<Integer,Integer> assoPersonByGroup){
+    public boolean associationPossible(Map<Integer,Integer> assoPersonByGroup){
 
         // pour que l'association soit possible, il faut que le nombre de personnes pour
         // un couple (groupNumber, numberOfPerson) soit <= a la somme des personnes des autres groupes

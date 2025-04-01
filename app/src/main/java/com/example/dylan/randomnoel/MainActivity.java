@@ -43,11 +43,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     protected List<Nom> noms = new ArrayList<>();
 
+    protected List<Nom> contacts = new ArrayList<>();
+
     private AdapterView monAdapter = new AdapterView(noms);
 
     protected ListView listNoms;
 
-    private int remainingClickEasterEgg = 5;
+    protected int remainingClickEasterEgg = 5;
 
     private final SecureRandom r = new SecureRandom();
 
@@ -57,24 +59,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        if(shouldCallSuperOnCreate())
+            super.onCreate(savedInstanceState);
 
-        com.example.dylan.randomnoel.databinding.ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
+        ActivityMainBinding binding = getBinding();
         setContentView(binding.getRoot());
         setSupportActionBar(binding.toolbar);
 
-        drawerLayout = binding.drawerLayout;
-        NavigationView navigationView = binding.navView;
+        drawerLayout = getDrawerLayout(binding);
+        NavigationView navigationView = getNavView(binding);
         navigationView.setNavigationItemSelectedListener(this);
 
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawerLayout, binding.toolbar,
-                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        ActionBarDrawerToggle toggle = getActionBarDrawerToggle(binding);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-        binding.groupe.setOnClickListener(v -> egg());
-        binding.ajouter.setOnClickListener(v -> ajouter());
+        EditText groupe = getGroupeEditText(binding);
+        Button ajouter = getAjouterButton(binding);
+
+        groupe.setOnClickListener(v -> egg());
+        ajouter.setOnClickListener(v -> ajouter());
 
         accordPermission();
 
@@ -92,6 +96,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Button ok = findViewById(R.id.random);
         ok.setOnClickListener(this);
+    }
+
+    protected boolean shouldCallSuperOnCreate() {
+        return true;
+    }
+
+    protected Button getAjouterButton(ActivityMainBinding binding) {
+        return binding.ajouter;
+    }
+
+    protected EditText getGroupeEditText(ActivityMainBinding binding) {
+        return binding.groupe;
+    }
+
+    protected DrawerLayout getDrawerLayout(ActivityMainBinding binding) {
+        return binding.drawerLayout;
+    }
+
+    protected ActionBarDrawerToggle getActionBarDrawerToggle(ActivityMainBinding binding) {
+        return new ActionBarDrawerToggle(
+                this, drawerLayout, binding.toolbar,
+                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+    }
+
+    protected NavigationView getNavView(ActivityMainBinding binding) {
+        return binding.navView;
+    }
+
+    protected ActivityMainBinding getBinding() {
+        return ActivityMainBinding.inflate(getLayoutInflater());
     }
 
     @Override
@@ -184,8 +218,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void addContact() {
-        List<Nom> contacts = new ArrayList<>();
-
         Cursor c = getContentResolver().query(
                 ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
                 null, null, null);
@@ -207,9 +239,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         Spinner s = findViewById(R.id.nomContact);
-        ArrayAdapter<Nom> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_dropdown_item, contacts);
+        ArrayAdapter<Nom> adapter = createArrayAdapter(contacts);
         s.setAdapter(adapter);
+    }
+
+    protected ArrayAdapter<Nom> createArrayAdapter(List<Nom> contacts) {
+        return new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_dropdown_item, contacts);
     }
 
     /**
@@ -271,7 +307,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             .orElse(null);
     }
 
-    private void egg() {
+    protected void egg() {
          --remainingClickEasterEgg;
 
          if(remainingClickEasterEgg < 3 && remainingClickEasterEgg > 0)

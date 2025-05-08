@@ -39,12 +39,12 @@ apply plugin: 'com.android.application'
 
 android {
 
-    compileSdk 35
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.example.dylan.randomnoel"
-        minSdk 34
-        targetSdk 35
+        minSdk 28
+        targetSdk 34
         versionCode 1
         versionName "1.0"
     }
@@ -75,7 +75,7 @@ android {
         unitTests {
             includeAndroidResources = true
             all {
-                systemProperty 'robolectric.sdk.version', 34
+                systemProperty 'robolectric.sdk.version', 30
                 systemProperty 'robolectric.logging', 'stdout'
 
                 // Activer les logs détaillés
@@ -84,6 +84,11 @@ android {
                 // Configuration supplémentaire pour les ressources
                 systemProperty 'android.manifest', 'app/src/main/AndroidManifest.xml'
                 systemProperty 'android.resources', 'src/main/res'
+
+                jacoco {
+                    includeNoLocationClasses = false
+                    excludes = ['jdk.internal.*', 'android.*', 'androidx.*']
+                }
             }
         }
     }
@@ -98,8 +103,8 @@ dependencies {
     //noinspection GradleCompatible
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.8.7'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.9.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.0'
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
     implementation 'com.google.android.material:material:1.12.0'
 

@@ -21,8 +21,16 @@ public class SaveAssociation implements Parcelable {
         int size = in.readInt();
         association = new HashMap<>(size);
         for (int i = 0; i < size; i++) {
-            Nom key = in.readParcelable(Nom.class.getClassLoader(), Nom.class);
-            Nom value = in.readParcelable(Nom.class.getClassLoader(), Nom.class);
+            Nom key;
+            Nom value;
+
+            if (Utils.isAtLeastUpsideDownCakeVersion()) {
+                key = in.readParcelable(Nom.class.getClassLoader(), Nom.class);
+                value = in.readParcelable(Nom.class.getClassLoader(), Nom.class);
+            } else {
+                key = in.readParcelable(Nom.class.getClassLoader());
+                value = in.readParcelable(Nom.class.getClassLoader());
+            }
             association.put(key, value);
         }
     }

@@ -19,6 +19,13 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+
 import com.example.dylan.randomnoel.databinding.ActivityMainBinding;
 import com.google.android.material.navigation.NavigationView;
 
@@ -28,13 +35,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
 
@@ -83,7 +83,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         accordPermission();
 
         if (savedInstanceState != null) {
-            SaveNoms listeNoms = savedInstanceState.getParcelable(LISTE_NOMS, SaveNoms.class);
+            SaveNoms listeNoms;
+
+            if (Utils.isAtLeastUpsideDownCakeVersion())
+                listeNoms = savedInstanceState.getParcelable(LISTE_NOMS, SaveNoms.class);
+            else
+                listeNoms = savedInstanceState.getParcelable(LISTE_NOMS);
 
             if (listeNoms != null) {
                 noms = listeNoms.getNoms();

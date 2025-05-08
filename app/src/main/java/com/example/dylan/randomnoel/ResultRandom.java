@@ -13,6 +13,13 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+
 import com.example.dylan.randomnoel.databinding.ActivityRandomBinding;
 import com.google.android.material.navigation.NavigationView;
 
@@ -23,63 +30,66 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by Dylan on 09/04/2017.
  */
 public class ResultRandom extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener
 {
-    private Map<Nom,Nom> association;
+    protected Map<Nom,Nom> association;
 
     private static final int MY_PERMISSION_REQUEST_CODE_SEND_SMS = 100;
 
-    private final SecureRandom rand = new SecureRandom();
-
     private static final String LISTE_NOMS = "listeNoms";
 
-    private DrawerLayout drawerLayout;
+    protected DrawerLayout drawerLayout;
 
-    private DatabaseHelper databaseHelper;
+    protected DatabaseHelper databaseHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
-        super.onCreate(savedInstanceState);
-        com.example.dylan.randomnoel.databinding.ActivityRandomBinding binding = ActivityRandomBinding.inflate(getLayoutInflater());
+        if(shouldCallSuperOnCreate())
+            super.onCreate(savedInstanceState);
+
+        ActivityRandomBinding binding = getBinding();
         setContentView(binding.getRoot());
         setSupportActionBar(binding.toolbar);
 
-        drawerLayout = binding.drawerLayout;
-        NavigationView navigationView = binding.navView;
+        drawerLayout = getDrawerLayout(binding);
+        NavigationView navigationView = getNavView(binding);
         navigationView.setNavigationItemSelectedListener(this);
 
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawerLayout, binding.toolbar,
-                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        ActionBarDrawerToggle toggle = getActionBarDrawerToggle(binding);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
         MonAdapterRandom monAdapter;
         ListView lv;
-        if(savedInstanceState != null){
-            SaveAssociation saveAssociation = savedInstanceState.getParcelable(LISTE_NOMS, SaveAssociation.class);
-            if(saveAssociation != null) {
+        if(savedInstanceState != null) {
+            SaveAssociation saveAssociation;
+            if(Utils.isAtLeastUpsideDownCakeVersion())
+                saveAssociation = savedInstanceState.getParcelable(LISTE_NOMS, SaveAssociation.class);
+            else
+                saveAssociation = savedInstanceState.getParcelable(LISTE_NOMS);
+
+            if(saveAssociation != null)
                 association = saveAssociation.getAssociation();
-            }
+
             monAdapter = new MonAdapterRandom(association);
             lv = findViewById(R.id.listeNomsAssocies);
             lv.setAdapter(monAdapter);
         }
         else {
             // contient la liste des noms associés aux groupe
-            List<Nom> listeNoms = getIntent().getParcelableArrayListExtra(LISTE_NOMS, Nom.class);
+            List<Nom> listeNoms;
+
+            if(Utils.isAtLeastUpsideDownCakeVersion())
+                listeNoms = getIntent().getParcelableArrayListExtra(LISTE_NOMS, Nom.class);
+            else
+                listeNoms = getIntent().getParcelableArrayListExtra(LISTE_NOMS);
 
             // on les trie par groupe (car ils ne le sont pas)
             assert listeNoms != null;
@@ -97,6 +107,7 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
             lv.setAdapter(monAdapter);
 
             try {
+                SecureRandom rand = new SecureRandom();
                 // on itère sur chacune des personnes pour les associer à quelqu'un
                 for(Nom n : listeNoms) {
                     Integer i = n.getGroupe();
@@ -127,6 +138,28 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
         databaseHelper = new DatabaseHelper(this);
     }
 
+    protected boolean shouldCallSuperOnCreate() {
+        return true;
+    }
+
+    protected ActivityRandomBinding getBinding() {
+        return ActivityRandomBinding.inflate(getLayoutInflater());
+    }
+
+    protected DrawerLayout getDrawerLayout(ActivityRandomBinding binding) {
+        return binding.drawerLayout;
+    }
+
+    protected NavigationView getNavView(ActivityRandomBinding binding) {
+        return binding.navView;
+    }
+
+    protected ActionBarDrawerToggle getActionBarDrawerToggle(ActivityRandomBinding binding) {
+        return new ActionBarDrawerToggle(
+                this, drawerLayout, binding.toolbar,
+                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+    }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
@@ -152,12 +185,17 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
         return true;
     }
 
-    public static List<Nom> choixPossible(List<Nom> noms, Integer groupe){
+    protected List<Nom> choixPossible(List<Nom> noms, Integer groupe){
 
-        return noms
+        Stream<Nom> nomStream = noms
                 .stream()
-                .filter(n -> !n.getGroupe().equals(groupe))
-                .toList();
+                .filter(n -> !n.getGroupe().equals(groupe));
+
+        if (Utils.isAtLeastUpsideDownCakeVersion())
+            return nomStream
+                    .toList();
+        else
+            return nomStream.collect(Collectors.toList());
     }
 
     private void sendMessage() {
@@ -188,7 +226,7 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    private void sendSMSBySmsManager()  {
+    protected void sendSMSBySmsManager()  {
 
         Iterator<Map.Entry<Nom, Nom>> it = association.entrySet().iterator();
         String phoneNumber;
@@ -239,7 +277,8 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions, @NonNull int[] grantResults) {
 
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(shouldCallSuperOnRequestPermissionsResult())
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == MY_PERMISSION_REQUEST_CODE_SEND_SMS) {// Note: If request is cancelled, the result arrays are empty.
             // Permissions granted (SEND_SMS).
             if (grantResults.length > 0
@@ -258,10 +297,15 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    protected boolean shouldCallSuperOnRequestPermissionsResult() {
+        return true;
+    }
+
     // When results returned
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+        if(shoudCallSuperOnActivityResult())
+            super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == MY_PERMISSION_REQUEST_CODE_SEND_SMS) {
             if (resultCode == RESULT_OK) {
@@ -275,8 +319,14 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    protected boolean shoudCallSuperOnActivityResult() {
+        return true;
+    }
+
     @Override
     public void onClick(View view) {
         sendMessage();
     }
 }
+
+

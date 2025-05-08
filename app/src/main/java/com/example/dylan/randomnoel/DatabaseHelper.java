@@ -99,7 +99,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Méthode pour obtenir la date actuelle au format dd/MM/yyyy-HH:mm:ss
-    private String getCurrentDate() {
+    protected String getCurrentDate() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy-HH:mm:ss", Locale.getDefault());
         Date date = new Date();
         return dateFormat.format(date);

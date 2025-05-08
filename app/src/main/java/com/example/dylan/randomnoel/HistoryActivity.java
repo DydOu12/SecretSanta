@@ -9,12 +9,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
-import com.example.dylan.randomnoel.databinding.ActivityHistoryBinding;
-import com.google.android.material.navigation.NavigationView;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
@@ -22,42 +16,82 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.dylan.randomnoel.databinding.ActivityHistoryBinding;
+import com.google.android.material.navigation.NavigationView;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class HistoryActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    private DatabaseHelper databaseHelper;
-    private HistoryAdapter historyAdapter;
-    private DrawerLayout drawerLayout;
-    private Spinner dateSpinner;
+    protected DatabaseHelper databaseHelper;
+    protected HistoryAdapter historyAdapter;
+    protected DrawerLayout drawerLayout;
+    protected Spinner dateSpinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        com.example.dylan.randomnoel.databinding.ActivityHistoryBinding binding = ActivityHistoryBinding.inflate(getLayoutInflater());
+        if(shouldCallSuperOnCreate())
+            super.onCreate(savedInstanceState);
+
+        ActivityHistoryBinding binding = getBinding();
         setContentView(binding.getRoot());
         setSupportActionBar(binding.toolbar);
 
-        drawerLayout = binding.drawerLayout;
-        NavigationView navigationView = binding.navView;
+        drawerLayout = getDrawerLayout(binding);
+        NavigationView navigationView = getNavView(binding);
         navigationView.setNavigationItemSelectedListener(this);
 
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawerLayout, binding.toolbar,
-                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        ActionBarDrawerToggle toggle = getActionBarDrawerToggle(binding);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
         // Initialize the database helper
-        databaseHelper = new DatabaseHelper(this);
+        databaseHelper = getDatabaseHelper();
 
         // Initialize RecyclerView
-        RecyclerView recyclerViewHistory = binding.recyclerViewHistory;
+        RecyclerView recyclerViewHistory = getRecylerViewHistory(binding);
         recyclerViewHistory.setLayoutManager(new LinearLayoutManager(this));
         historyAdapter = new HistoryAdapter(new ArrayList<>());
         recyclerViewHistory.setAdapter(historyAdapter);
 
         //Initialize Spinner
-        dateSpinner = binding.dateSpinner;
+        dateSpinner = getDateSpinner(binding);
         initializeSpinner();
+    }
+
+    protected boolean shouldCallSuperOnCreate() {
+        return true;
+    }
+
+    protected ActivityHistoryBinding getBinding() {
+        return ActivityHistoryBinding.inflate(getLayoutInflater());
+    }
+
+    protected DrawerLayout getDrawerLayout(ActivityHistoryBinding binding) {
+        return binding.drawerLayout;
+    }
+
+    protected NavigationView getNavView(ActivityHistoryBinding binding) {
+        return binding.navView;
+    }
+
+    protected ActionBarDrawerToggle getActionBarDrawerToggle(ActivityHistoryBinding binding) {
+        return new ActionBarDrawerToggle(
+                this, drawerLayout, binding.toolbar,
+                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+    }
+
+    protected RecyclerView getRecylerViewHistory(ActivityHistoryBinding binding) {
+        return binding.recyclerViewHistory;
+    }
+
+    protected DatabaseHelper getDatabaseHelper() {
+        return new DatabaseHelper(this);
+    }
+
+    protected Spinner getDateSpinner(ActivityHistoryBinding binding) {
+        return binding.dateSpinner;
     }
 
     @Override
@@ -70,12 +104,12 @@ public class HistoryActivity extends AppCompatActivity implements NavigationView
         return false;
     }
 
-    private void initializeSpinner() {
+    protected void initializeSpinner() {
         // Load all distinct dates from the database
         List<String> allDates = databaseHelper.getAllDates();
 
         // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, allDates);
+        ArrayAdapter<String> spinnerAdapter = getArrayAdapter(allDates);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         // Apply the adapter to the spinner
@@ -96,7 +130,11 @@ public class HistoryActivity extends AppCompatActivity implements NavigationView
         });
     }
 
-    private void loadHistoryByDate(String date) {
+    protected ArrayAdapter<String> getArrayAdapter(List<String> allDates) {
+        return new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, allDates);
+    }
+
+    protected void loadHistoryByDate(String date) {
         List<String> history = databaseHelper.getAssociationsByDate(date);
         historyAdapter.updateHistory(history);
     }

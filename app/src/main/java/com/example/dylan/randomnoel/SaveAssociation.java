@@ -24,7 +24,7 @@ public class SaveAssociation implements Parcelable {
             Nom key;
             Nom value;
 
-            if (Utils.isAtLeastUpsideDownCakeVersion()) {
+            if (Utils.isAtLeastTiramisuVersion()) {
                 key = in.readParcelable(Nom.class.getClassLoader(), Nom.class);
                 value = in.readParcelable(Nom.class.getClassLoader(), Nom.class);
             } else {

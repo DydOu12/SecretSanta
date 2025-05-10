@@ -13,13 +13,6 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-
 import com.example.dylan.randomnoel.databinding.ActivityRandomBinding;
 import com.google.android.material.navigation.NavigationView;
 
@@ -32,6 +25,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 /**
  * Created by Dylan on 09/04/2017.
@@ -70,7 +70,7 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
         ListView lv;
         if(savedInstanceState != null) {
             SaveAssociation saveAssociation;
-            if(Utils.isAtLeastUpsideDownCakeVersion())
+            if(Utils.isAtLeastTiramisuVersion())
                 saveAssociation = savedInstanceState.getParcelable(LISTE_NOMS, SaveAssociation.class);
             else
                 saveAssociation = savedInstanceState.getParcelable(LISTE_NOMS);
@@ -86,7 +86,7 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
             // contient la liste des noms associés aux groupe
             List<Nom> listeNoms;
 
-            if(Utils.isAtLeastUpsideDownCakeVersion())
+            if(Utils.isAtLeastTiramisuVersion())
                 listeNoms = getIntent().getParcelableArrayListExtra(LISTE_NOMS, Nom.class);
             else
                 listeNoms = getIntent().getParcelableArrayListExtra(LISTE_NOMS);

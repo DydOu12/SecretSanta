@@ -54,17 +54,7 @@ public class MonAdapterRandom extends BaseAdapter
 
         int textColor = Color.BLACK;
 
-        if(coulValue != null) {
-            row.setBackgroundColor(coulValue);
-
-            int brightness = (int) Math.round(
-                    Color.red(coulValue) * 0.299 +
-                            Color.green(coulValue) * 0.587 +
-                            Color.blue(coulValue) * 0.114);
-
-            if(brightness <= 125)
-                textColor = Color.WHITE;
-        }
+        textColor = Utils.getTextColor(coulValue, row, textColor);
 
         TextView nom = row.findViewById(R.id.assocNoms);
         assert value != null;

@@ -1,5 +1,6 @@
 package com.example.dylan.randomnoel;
 
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -26,7 +27,11 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
 
         public HistoryViewHolder(ItemHistoryBinding binding) {
             super(binding.getRoot());
-            textViewHistoryItem = binding.textViewHistoryItem;
+            textViewHistoryItem = getTextViewHistoryItem(binding);
+        }
+
+        protected TextView getTextViewHistoryItem(ItemHistoryBinding binding) {
+            return binding.textViewHistoryItem;
         }
     }
 
@@ -49,6 +54,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
         return history.size();
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void updateHistory(List<String> newHistory) {
         history = newHistory;
         notifyDataSetChanged();

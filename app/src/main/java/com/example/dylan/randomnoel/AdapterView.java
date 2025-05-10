@@ -57,18 +57,8 @@ public class AdapterView extends BaseAdapter
         row=inflater.inflate(R.layout.vue_liste, parent, false);
 
         int textColor = Color.BLACK;
+        textColor = Utils.getTextColor(coulValue, row, textColor);
 
-        if(coulValue != null) {
-            row.setBackgroundColor(coulValue);
-
-            int brightness = (int) Math.round(
-                Color.red(coulValue) * 0.299 +
-                Color.green(coulValue) * 0.587 +
-                Color.blue(coulValue) * 0.114);
-
-            if(brightness <= 125)
-                textColor = Color.WHITE;
-        }
         TextView idL = row.findViewById(R.id.idLi);
         idL.setText(String.valueOf(position+1));
         idL.setTextColor(textColor);

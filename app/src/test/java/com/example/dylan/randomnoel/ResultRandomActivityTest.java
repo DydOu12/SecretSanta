@@ -1,22 +1,5 @@
 package com.example.dylan.randomnoel;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockConstruction;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -28,13 +11,6 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.arch.core.executor.ArchTaskExecutor;
-import androidx.arch.core.executor.TaskExecutor;
-import androidx.core.content.ContextCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.dylan.randomnoel.databinding.ActivityRandomBinding;
 import com.google.android.material.navigation.NavigationView;
@@ -52,6 +28,30 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.arch.core.executor.ArchTaskExecutor;
+import androidx.arch.core.executor.TaskExecutor;
+import androidx.core.content.ContextCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockConstruction;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ResultRandomActivityTest {
@@ -158,9 +158,10 @@ public class ResultRandomActivityTest {
     }
 
     @Test
-    public void testOnCreateWithAtLeastUpsideDownCakeVersion() {
+    public void testOnCreateWithAtLeastTiramisuVersion() {
         try (MockedStatic<Utils> mockedUtils = mockStatic(Utils.class)) {
             mockedUtils.when(Utils::isAtLeastUpsideDownCakeVersion).thenReturn(true);
+            mockedUtils.when(Utils::isAtLeastTiramisuVersion).thenReturn(true);
 
             Bundle mockBundle = mock(Bundle.class);
             paramOnCreate();
@@ -186,8 +187,8 @@ public class ResultRandomActivityTest {
     private void paramOnCreateWithNullBundle() {
         Intent mockIntent = mock(Intent.class);
         doReturn(mockIntent).when(resultRandomActivitySpy).getIntent();
-        when(mockIntent.getParcelableArrayListExtra(eq("listeNoms"))).thenReturn((ArrayList) listeNomsAssocies);
-        when(mockIntent.getParcelableArrayListExtra(eq("listeNoms"), eq(Nom.class))).thenReturn(listeNomsAssocies);
+        when(mockIntent.getParcelableArrayListExtra("listeNoms", Nom.class)).thenReturn(listeNomsAssocies);
+        when(mockIntent.getParcelableArrayListExtra("listeNoms")).thenReturn((ArrayList) listeNomsAssocies);
     }
 
     private void paramOnCreate() {

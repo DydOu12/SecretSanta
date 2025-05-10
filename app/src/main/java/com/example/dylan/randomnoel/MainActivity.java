@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (savedInstanceState != null) {
             SaveNoms listeNoms;
 
-            if (Utils.isAtLeastUpsideDownCakeVersion())
+            if (Utils.isAtLeastTiramisuVersion())
                 listeNoms = savedInstanceState.getParcelable(LISTE_NOMS, SaveNoms.class);
             else
                 listeNoms = savedInstanceState.getParcelable(LISTE_NOMS);

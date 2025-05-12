@@ -1,7 +1,10 @@
 package com.example.dylan.randomnoel;
 
+import static com.example.dylan.randomnoel.DatabaseHelper.COLUMN_DATE;
+import static com.example.dylan.randomnoel.DatabaseHelper.COLUMN_PERSONNE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -72,8 +75,8 @@ public class DatabaseHelperTest {
         // Vérifier que la commande SQL pour créer la table a été exécutée
         String expectedCreateTableSQL = "CREATE TABLE " + DatabaseHelper.TABLE_ASSOCIATIONS + " (" +
                 DatabaseHelper.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                DatabaseHelper.COLUMN_DATE + " TEXT NOT NULL, " +
-                DatabaseHelper.COLUMN_PERSONNE + " TEXT NOT NULL, " +
+                COLUMN_DATE + " TEXT NOT NULL, " +
+                COLUMN_PERSONNE + " TEXT NOT NULL, " +
                 DatabaseHelper.COLUMN_DESTINATAIRE + " TEXT NOT NULL);";
 
         // Vérifier que execSQL a été appelé avec la commande SQL attendue
@@ -105,7 +108,8 @@ public class DatabaseHelperTest {
     @Test
     public void testGetAssociationsByDate() {
         // Préparer les données de test
-        String testDate = "01/01/2025-12:00:00";
+        String testDate = "01/01/2025 12:00:00";
+        String testDateDB = "2025-01-01 12:00:00";
 
         // Configurer le comportement du curseur pour simuler 2 entrées
         when(mockCursor.moveToFirst()).thenReturn(true);
@@ -117,8 +121,8 @@ public class DatabaseHelperTest {
         when(mockDatabase.query(
                 eq(DatabaseHelper.TABLE_ASSOCIATIONS),
                 any(String[].class),
-                eq(DatabaseHelper.COLUMN_DATE + "=?"),
-                eq(new String[]{testDate}),
+                eq(COLUMN_DATE + "=?"),
+                eq(new String[]{testDateDB}),
                 isNull(),
                 isNull(),
                 isNull()
@@ -137,21 +141,21 @@ public class DatabaseHelperTest {
         verify(mockDatabase).close();
     }
 
-
     @Test
     public void testGetAssociationsByDate_whenNoResults_returnsEmptyList() {
-        String testDate = "01/01/2025-12:00:00";
+        String testDate = "01/01/2025 12:00:00";
+        String testDateDB = "2025-01-01 12:00:00";
 
         // Simuler un curseur vide
         when(mockDatabase.query(
-                     eq(DatabaseHelper.TABLE_ASSOCIATIONS),
-                     any(String[].class),
-                     eq(DatabaseHelper.COLUMN_DATE + "=?"),
-                     eq(new String[]{testDate}),
-                     isNull(),
-                     isNull(),
-                     isNull()
-                     )).thenReturn(mockCursor);
+                eq(DatabaseHelper.TABLE_ASSOCIATIONS),
+                any(String[].class),
+                eq(COLUMN_DATE + "=?"),
+                eq(new String[]{testDateDB}),
+                isNull(),
+                isNull(),
+                isNull()
+        )).thenReturn(mockCursor);
 
         when(mockCursor.moveToFirst()).thenReturn(false); // Le if ne passe pas
 
@@ -171,8 +175,8 @@ public class DatabaseHelperTest {
         // Configurer le comportement du curseur pour simuler 3 entrées dont une dupliquée
         when(mockCursor.moveToFirst()).thenReturn(true);
         when(mockCursor.moveToNext()).thenReturn(true, true, false);
-        when(mockCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DATE)).thenReturn(0);
-        when(mockCursor.getString(0)).thenReturn("01/01/2025-12:00:00", "02/01/2025-12:00:00", "01/01/2025-12:00:00");
+        when(mockCursor.getColumnIndexOrThrow(COLUMN_DATE)).thenReturn(0);
+        when(mockCursor.getString(0)).thenReturn("2025-01-01 12:00:00", "2025-01-02 12:00:00", "2025-01-03 12:00:00");
 
         // Configurer le comportement du mock de la base de données
         when(mockDatabase.query(
@@ -183,7 +187,7 @@ public class DatabaseHelperTest {
                 isNull(),
                 isNull(),
                 isNull(),
-                isNull(),
+                eq(COLUMN_DATE + " DESC"),
                 isNull()
         )).thenReturn(mockCursor);
 
@@ -191,9 +195,10 @@ public class DatabaseHelperTest {
         List<String> result = databaseHelper.getAllDates();
 
         // Vérifier les résultats - doit contenir 2 dates uniques grâce au HashSet dans la méthode
-        assertEquals(2, result.size());
-        assertTrue(result.contains("01/01/2025-12:00:00"));
-        assertTrue(result.contains("02/01/2025-12:00:00"));
+        assertEquals(3, result.size());
+        assertTrue(result.contains("01/01/2025 12:00:00"));
+        assertTrue(result.contains("02/01/2025 12:00:00"));
+        assertTrue(result.contains("03/01/2025 12:00:00"));
 
         // Vérifier que les ressources sont libérées
         verify(mockCursor).close();
@@ -207,12 +212,12 @@ public class DatabaseHelperTest {
         when(mockDatabase.query(
                      eq(true),
                      eq(DatabaseHelper.TABLE_ASSOCIATIONS),
-                     eq(new String[]{DatabaseHelper.COLUMN_DATE}),
+                     eq(new String[]{COLUMN_DATE}),
                      isNull(),
                      isNull(),
                      isNull(),
                      isNull(),
-                     isNull(),
+                     eq(COLUMN_DATE + " DESC"),
                      isNull()
                      )).thenReturn(mockCursor);
 
@@ -238,7 +243,7 @@ public class DatabaseHelperTest {
         assertNotNull("La date ne doit pas être nulle", dateStr);
 
         // Vérifie que la date est bien au format attendu
-        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy-HH:mm:ss", Locale.getDefault());
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         format.setLenient(false);
 
         try {
@@ -247,4 +252,91 @@ public class DatabaseHelperTest {
             fail("La date retournée n'est pas au format attendu : " + dateStr);
         }
     }
+
+    @Test
+    public void testFormatDateWithValidInput() {
+        // Arrange
+        SimpleDateFormat source = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat target = new SimpleDateFormat("dd/MM/yyyy");
+        String dbDate = "2023-01-15";
+
+        // Act
+        String result = databaseHelper.formatDate(dbDate, source, target);
+
+        // Assert
+        assertEquals("15/01/2023", result);
+    }
+
+    @Test
+    public void testFormatDateWithInvalidFormat() {
+        // Arrange
+        SimpleDateFormat source = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat target = new SimpleDateFormat("dd/MM/yyyy");
+        String dbDate = "15/01/2023"; // Format invalide par rapport à source
+
+        // Act
+        String result = databaseHelper.formatDate(dbDate, source, target);
+
+        // Assert
+        assertEquals("15/01/2023", result); // Devrait retourner la chaîne originale
+    }
+
+    @Test
+    public void testGetLastAssociation() {
+        String personne = "personne";
+
+        when(mockCursor.moveToFirst()).thenReturn(true);
+        when(mockCursor.getString(0)).thenReturn("quelqun");
+
+        // Simuler un curseur vide
+        when(mockDatabase.query(
+                eq(DatabaseHelper.TABLE_ASSOCIATIONS),
+                any(String[].class),
+                eq(COLUMN_PERSONNE + "=?"),
+                eq(new String[]{personne}),
+                isNull(),
+                isNull(),
+                eq(COLUMN_DATE + " DESC"),
+                eq("1")
+        )).thenReturn(mockCursor);
+
+        // Appel de la méthode
+        String result = databaseHelper.getLastAssociation(personne);
+
+        // Vérifications
+        assertNotNull(result);
+        assertEquals("quelqun", result);
+
+        verify(mockCursor).close();
+        verify(mockDatabase).close();
+    }
+
+    @Test
+    public void testGetLastAssociation_whenNoResults_returnsNull() {
+        String personne = "personne";
+
+        when(mockCursor.moveToFirst()).thenReturn(false);
+
+        // Simuler un curseur vide
+        when(mockDatabase.query(
+                eq(DatabaseHelper.TABLE_ASSOCIATIONS),
+                any(String[].class),
+                eq(COLUMN_PERSONNE + "=?"),
+                eq(new String[]{personne}),
+                isNull(),
+                isNull(),
+                eq(COLUMN_DATE + " DESC"),
+                eq("1")
+        )).thenReturn(mockCursor);
+
+        // Appel de la méthode
+        String result = databaseHelper.getLastAssociation(personne);
+
+        // Vérifications
+        assertNull(result);
+
+        verify(mockCursor).close();
+        verify(mockDatabase).close();
+    }
+
 }

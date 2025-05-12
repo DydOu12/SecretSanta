@@ -1,5 +1,7 @@
 package com.example.dylan.randomnoel;
 
+import static java.util.Objects.requireNonNull;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -14,11 +16,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.logging.Logger;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
-
-    private static final Logger LOGGER = Logger.getLogger(DatabaseHelper.class.getName());
 
     private static final String DATABASE_NAME = "cadeaux_noel.db";
     private static final int DATABASE_VERSION = 3;
@@ -79,8 +78,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         try (SQLiteDatabase db = this.getReadableDatabase()) {
             // Convertir la date d'affichage en date DB
-            Date date = DISPLAY_DATE_FORMAT.parse(displayDate);
-            String dbDate = date != null ? DB_DATE_FORMAT.format(date) : "";
+            String dbDate = formatDate(displayDate, DISPLAY_DATE_FORMAT, DB_DATE_FORMAT);
 
             Cursor cursor = db.query(TABLE_ASSOCIATIONS,
                     new String[]{COLUMN_PERSONNE, COLUMN_DESTINATAIRE},
@@ -96,8 +94,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             }
             cursor.close();
 
-        } catch (ParseException e) {
-            LOGGER.warning("Erreur de formatage de date");
         }
 
         return associations;
@@ -117,7 +113,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             do {
                 String dbDate = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DATE));
                 // Convertir en format d'affichage
-                displayDates.add(formatDateForDisplay(dbDate));
+                displayDates.add(formatDate(dbDate, DB_DATE_FORMAT, DISPLAY_DATE_FORMAT));
             } while (cursor.moveToNext());
         }
         cursor.close();
@@ -131,14 +127,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Convertit une date du format DB vers le format d'affichage
+     * Convertit une date du format DB vers le format d'affichage et vice versa
      */
-    public String formatDateForDisplay(String dbDate) {
+    public String formatDate(String dbDate, SimpleDateFormat source, SimpleDateFormat target) {
         try {
-            Date date = DB_DATE_FORMAT.parse(dbDate);
-            return date != null ? DISPLAY_DATE_FORMAT.format(date) : "";
+            Date date = source.parse(dbDate);
+            return target.format(requireNonNull(date));
         } catch (ParseException e) {
-            LOGGER.warning("Erreur de formatage de date");
             return dbDate; // Retourne la chaîne originale en cas d'erreur
         }
     }
@@ -154,7 +149,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.query(
                 TABLE_ASSOCIATIONS,
                 new String[]{COLUMN_DESTINATAIRE},
-                COLUMN_PERSONNE + " = ?",
+                COLUMN_PERSONNE + "=?",
                 new String[]{personne},
                 null,
                 null,

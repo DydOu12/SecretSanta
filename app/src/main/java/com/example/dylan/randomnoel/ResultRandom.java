@@ -110,9 +110,7 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
                 SecureRandom rand = new SecureRandom();
                 // on itère sur chacune des personnes pour les associer à quelqu'un
                 for(Nom n : listeNoms) {
-                    Integer i = n.getGroupe();
-
-                    List<Nom> nomsPossibles = choixPossible(listeNomsAAssocies, i);
+                    List<Nom> nomsPossibles = choixPossible(listeNomsAAssocies, n);
 
                     Nom nomAAssocie;
 
@@ -185,11 +183,22 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
         return true;
     }
 
-    protected List<Nom> choixPossible(List<Nom> noms, Integer groupe){
+    /**
+     *
+     * @param noms la liste de tous les noms
+     * @param personne la personne parcourue
+     * @return la liste des noms qui peuvent être associés à la personne (pas du meme groupe, ni la derniere personne associee)
+     */
+    protected List<Nom> choixPossible(List<Nom> noms, Nom personne) {
+
+        String lastAssociation = databaseHelper.getLastAssociation(personne.getName());
 
         Stream<Nom> nomStream = noms
                 .stream()
-                .filter(n -> !n.getGroupe().equals(groupe));
+                .filter(n -> !personne.getGroupe().equals(n.getGroupe()));
+
+        if(lastAssociation != null)
+            nomStream = nomStream.filter(n -> !lastAssociation.equals(n.getName()));
 
         if (Utils.isAtLeastUpsideDownCakeVersion())
             return nomStream

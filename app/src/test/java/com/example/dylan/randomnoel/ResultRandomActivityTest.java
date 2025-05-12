@@ -158,7 +158,7 @@ public class ResultRandomActivityTest {
     }
 
     @Test
-    public void testOnCreateWithAtLeastTiramisuVersion() {
+    public void testOnCreateWithAtLeastTiramisuVersionAndNotNullBundle() {
         try (MockedStatic<Utils> mockedUtils = mockStatic(Utils.class)) {
             mockedUtils.when(Utils::isAtLeastUpsideDownCakeVersion).thenReturn(true);
             mockedUtils.when(Utils::isAtLeastTiramisuVersion).thenReturn(true);
@@ -166,10 +166,23 @@ public class ResultRandomActivityTest {
             Bundle mockBundle = mock(Bundle.class);
             paramOnCreate();
             resultRandomActivitySpy.onCreate(mockBundle);
+            verify(mockButton).setOnClickListener(any());
+        }
 
+    }
+
+    @Test
+    public void testOnCreateWithAtLeastTiramisuVersionAndNullBundle() {
+        try (MockedStatic<Utils> mockedUtils = mockStatic(Utils.class)) {
+            mockedUtils.when(Utils::isAtLeastUpsideDownCakeVersion).thenReturn(true);
+            mockedUtils.when(Utils::isAtLeastTiramisuVersion).thenReturn(true);
+
+            paramOnCreate();
             paramOnCreateWithNullBundle();
+            doReturn("").when(mockDatabaseHelper).getLastAssociation(anyString());
+
             resultRandomActivitySpy.onCreate(null);
-            verify(mockButton, times(2)).setOnClickListener(any());
+            verify(mockButton).setOnClickListener(any());
         }
 
     }
@@ -178,6 +191,7 @@ public class ResultRandomActivityTest {
     public void testOnCreateWithNullBundle() {
         paramOnCreate();
         paramOnCreateWithNullBundle();
+        doReturn(null).when(mockDatabaseHelper).getLastAssociation(anyString());
 
         resultRandomActivitySpy.onCreate(null);
 

@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -13,17 +14,27 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.logging.Logger;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
+    private static final Logger LOGGER = Logger.getLogger(DatabaseHelper.class.getName());
+
     private static final String DATABASE_NAME = "cadeaux_noel.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     public static final String TABLE_ASSOCIATIONS = "associations";
     public static final String COLUMN_ID = "id";
     public static final String COLUMN_DATE = "date";
     public static final String COLUMN_PERSONNE = "personne";
     public static final String COLUMN_DESTINATAIRE = "destinataire";
+
+    // Format pour stockage en base de données (ISO standard)
+    private final SimpleDateFormat DB_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+
+    // Format pour affichage à l'utilisateur
+    private final SimpleDateFormat DISPLAY_DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
+
 
     private static final String TABLE_CREATE =
             "CREATE TABLE " + TABLE_ASSOCIATIONS + " (" +
@@ -62,46 +73,101 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Méthode pour récupérer les associations d'une année donnée
-    public List<String> getAssociationsByDate(String date) {
-        List<String> associations = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_ASSOCIATIONS,
-                new String[]{COLUMN_PERSONNE, COLUMN_DESTINATAIRE},
-                COLUMN_DATE + "=?",
-                new String[]{String.valueOf(date)},
-                null, null, null);
+    public List<String> getAssociationsByDate(String displayDate) {
 
-        if (cursor.moveToFirst()) {
-            do {
-                String result = cursor.getString(0) + " -> " + cursor.getString(1);
-                associations.add(result);
-            } while (cursor.moveToNext());
+        List<String> associations = new ArrayList<>();
+
+        try (SQLiteDatabase db = this.getReadableDatabase()) {
+            // Convertir la date d'affichage en date DB
+            Date date = DISPLAY_DATE_FORMAT.parse(displayDate);
+            String dbDate = date != null ? DB_DATE_FORMAT.format(date) : "";
+
+            Cursor cursor = db.query(TABLE_ASSOCIATIONS,
+                    new String[]{COLUMN_PERSONNE, COLUMN_DESTINATAIRE},
+                    COLUMN_DATE + "=?",
+                    new String[]{dbDate},
+                    null, null, null);
+
+            if (cursor.moveToFirst()) {
+                do {
+                    String result = cursor.getString(0) + " -> " + cursor.getString(1);
+                    associations.add(result);
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
+
+        } catch (ParseException e) {
+            LOGGER.warning("Erreur de formatage de date");
         }
-        cursor.close();
-        db.close();
+
         return associations;
     }
 
     // Get all distinct dates from the database
     public List<String> getAllDates() {
-        Set<String> dates = new HashSet<>();
+        Set<String> displayDates  = new HashSet<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(true, TABLE_ASSOCIATIONS, new String[]{COLUMN_DATE}, null, null, null, null, null, null);
+        Cursor cursor = db.query(true, TABLE_ASSOCIATIONS,
+                new String[]{COLUMN_DATE},
+                null, null, null, null,
+                COLUMN_DATE + " DESC", // Tri chronologique direct
+                null);
 
         if (cursor.moveToFirst()) {
             do {
-                dates.add(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DATE)));
+                String dbDate = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DATE));
+                // Convertir en format d'affichage
+                displayDates.add(formatDateForDisplay(dbDate));
             } while (cursor.moveToNext());
         }
         cursor.close();
         db.close();
-        return new ArrayList<>(dates);
+        return new ArrayList<>(displayDates);
     }
 
-    // Méthode pour obtenir la date actuelle au format dd/MM/yyyy-HH:mm:ss
+    // Méthode pour obtenir la date actuelle au format yyyy-MM-dd HH:mm:ss pour la BD (ISO)
     protected String getCurrentDate() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy-HH:mm:ss", Locale.getDefault());
-        Date date = new Date();
-        return dateFormat.format(date);
+        return DB_DATE_FORMAT.format(new Date());
+    }
+
+    /**
+     * Convertit une date du format DB vers le format d'affichage
+     */
+    public String formatDateForDisplay(String dbDate) {
+        try {
+            Date date = DB_DATE_FORMAT.parse(dbDate);
+            return date != null ? DISPLAY_DATE_FORMAT.format(date) : "";
+        } catch (ParseException e) {
+            LOGGER.warning("Erreur de formatage de date");
+            return dbDate; // Retourne la chaîne originale en cas d'erreur
+        }
+    }
+
+    /**
+     * Récupère le dernier destinataire associé à une personne donnée
+     */
+    public String getLastAssociation(String personne) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String destinataire = null;
+
+        // Maintenant, on peut trier directement par date puisqu'elle est au format ISO
+        Cursor cursor = db.query(
+                TABLE_ASSOCIATIONS,
+                new String[]{COLUMN_DESTINATAIRE},
+                COLUMN_PERSONNE + " = ?",
+                new String[]{personne},
+                null,
+                null,
+                COLUMN_DATE + " DESC", // Tri direct possible avec format ISO
+                "1"); // Limite à 1 seul résultat
+
+        if (cursor.moveToFirst()) {
+            destinataire = cursor.getString(0);
+        }
+
+        cursor.close();
+        db.close();
+
+        return destinataire;
     }
 }

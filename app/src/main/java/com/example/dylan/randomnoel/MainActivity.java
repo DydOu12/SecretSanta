@@ -19,13 +19,6 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-
 import com.example.dylan.randomnoel.databinding.ActivityMainBinding;
 import com.google.android.material.navigation.NavigationView;
 
@@ -35,6 +28,13 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
 
@@ -322,7 +322,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
              Nom helene = new Nom("Hélène", "0677693045", 1, Color.BLUE);
              Nom laurent = new Nom("Laurent", "0631352000", 1, Color.BLUE);
              Nom manon = new Nom("Manon", "0782384810", 1, Color.BLUE);
+             Nom gabin = new Nom("Gabin", "0695012599", 1, Color.BLUE);
              Nom elie = new Nom("Elie", "0768497874", 1, Color.BLUE);
+             Nom melissa = new Nom("Melissa", "0761549875", 1, Color.BLUE);
 
              Nom alain = new Nom("Alain", "0788590358", 2, Color.GREEN);
              Nom bea = new Nom("Béa", "0683089227", 2, Color.GREEN);
@@ -344,7 +346,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
              noms.add(helene);
              noms.add(laurent);
              noms.add(manon);
+             noms.add(gabin);
              noms.add(elie);
+             noms.add(melissa);
              noms.add(bea);
              noms.add(alain);
              noms.add(matthieu);

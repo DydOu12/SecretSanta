@@ -66,6 +66,9 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
+        // Initialize the database helper
+        databaseHelper = new DatabaseHelper(this);
+
         MonAdapterRandom monAdapter;
         ListView lv;
         if(savedInstanceState != null) {
@@ -131,9 +134,6 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
 
         Button sendMessage = findViewById(R.id.sms);
         sendMessage.setOnClickListener(this);
-
-        // Initialize the database helper
-        databaseHelper = new DatabaseHelper(this);
     }
 
     protected boolean shouldCallSuperOnCreate() {

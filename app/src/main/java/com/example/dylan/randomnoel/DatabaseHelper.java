@@ -1,7 +1,5 @@
 package com.example.dylan.randomnoel;
 
-import static java.util.Objects.requireNonNull;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -17,6 +15,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import static java.util.Objects.requireNonNull;
+
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "cadeaux_noel.db";
@@ -29,10 +29,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_DESTINATAIRE = "destinataire";
 
     // Format pour stockage en base de données (ISO standard)
-    private final SimpleDateFormat DB_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+    private final SimpleDateFormat dbDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
     // Format pour affichage à l'utilisateur
-    private final SimpleDateFormat DISPLAY_DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
+    private final SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
 
 
     private static final String TABLE_CREATE =
@@ -78,7 +78,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         try (SQLiteDatabase db = this.getReadableDatabase()) {
             // Convertir la date d'affichage en date DB
-            String dbDate = formatDate(displayDate, DISPLAY_DATE_FORMAT, DB_DATE_FORMAT);
+            String dbDate = formatDate(displayDate, displayDateFormat, dbDateFormat);
 
             Cursor cursor = db.query(TABLE_ASSOCIATIONS,
                     new String[]{COLUMN_PERSONNE, COLUMN_DESTINATAIRE},
@@ -113,7 +113,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             do {
                 String dbDate = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DATE));
                 // Convertir en format d'affichage
-                displayDates.add(formatDate(dbDate, DB_DATE_FORMAT, DISPLAY_DATE_FORMAT));
+                displayDates.add(formatDate(dbDate, dbDateFormat, displayDateFormat));
             } while (cursor.moveToNext());
         }
         cursor.close();
@@ -123,7 +123,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Méthode pour obtenir la date actuelle au format yyyy-MM-dd HH:mm:ss pour la BD (ISO)
     protected String getCurrentDate() {
-        return DB_DATE_FORMAT.format(new Date());
+        return dbDateFormat.format(new Date());
     }
 
     /**

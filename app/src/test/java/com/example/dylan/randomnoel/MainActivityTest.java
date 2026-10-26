@@ -1,48 +1,5 @@
 package com.example.dylan.randomnoel;
 
-import android.Manifest;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.graphics.Color;
-import android.os.Bundle;
-import android.os.Looper;
-import android.provider.ContactsContract;
-import android.text.Editable;
-import android.view.KeyEvent;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.Spinner;
-import android.widget.Toast;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mock;
-import org.mockito.MockedConstruction;
-import org.mockito.MockedStatic;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.arch.core.executor.ArchTaskExecutor;
-import androidx.arch.core.executor.TaskExecutor;
-import androidx.core.content.ContextCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-
 import static com.example.dylan.randomnoel.MainActivity.PERMISSIONS_REQUEST_READ_CONTACTS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -64,8 +21,50 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.Manifest;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.os.Looper;
+import android.provider.ContactsContract;
+import android.view.KeyEvent;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.Spinner;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.arch.core.executor.ArchTaskExecutor;
+import androidx.arch.core.executor.TaskExecutor;
+import androidx.core.content.ContextCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+
 import com.example.dylan.randomnoel.databinding.ActivityMainBinding;
 import com.google.android.material.navigation.NavigationView;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mock;
+import org.mockito.MockedConstruction;
+import org.mockito.MockedStatic;
+import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MainActivityTest {
@@ -278,38 +277,6 @@ public class MainActivityTest {
         mainActivitySpy.onClick(mockView);
 
         mockedToast.verify(() -> Toast.makeText(eq(mainActivitySpy), eq("Association impossible !"), anyInt()));
-    }
-
-    @Test
-    public void testOnClick_ModifyNames() {
-        List<Nom> noms = new ArrayList<>();
-        noms.add(new Nom("Test1", "123", 1, Color.RED));
-        noms.add(new Nom("Test2", "456", 1, Color.RED));
-        mainActivitySpy.noms = noms;
-
-        View child1 = mock(View.class);
-        View child2 = mock(View.class);
-        EditText editText1 = mock(EditText.class);
-        EditText editText2 = mock(EditText.class);
-
-        when(mockListView.getChildCount()).thenReturn(2);
-        when(mockListView.getChildAt(0)).thenReturn(child1);
-        when(mockListView.getChildAt(1)).thenReturn(child2);
-        when(child1.findViewById(R.id.nomContactInList)).thenReturn(editText1);
-        when(child2.findViewById(R.id.nomContactInList)).thenReturn(editText2);
-
-        when(editText1.getText()).thenReturn(mock(Editable.class));
-        when(editText2.getText()).thenReturn(mock(Editable.class));
-
-        when(editText1.getText().toString()).thenReturn("Modified1");
-        when(editText2.getText().toString()).thenReturn("Modified2");
-
-        mainActivitySpy.listNoms = mockListView;
-
-        mainActivitySpy.onClick(mockView);
-
-        assertEquals("Modified1", noms.get(0).getName());
-        assertEquals("Modified2", noms.get(1).getName());
     }
 
     @Test

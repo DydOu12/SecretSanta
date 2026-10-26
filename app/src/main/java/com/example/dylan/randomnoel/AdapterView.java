@@ -67,6 +67,11 @@ public class AdapterView extends BaseAdapter
         nom.setText(key.getName());
         nom.setTextColor(textColor);
 
+        // IMPORTANT : On retire l'ancien listener pour éviter les doublons lors du scroll
+        if (nom.getTag() instanceof TextWatcher textWatcher) {
+            nom.removeTextChangedListener(textWatcher);
+        }
+
         nom.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {

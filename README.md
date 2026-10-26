@@ -10,7 +10,7 @@ Pour lancer une analyse SONAR :
   -Dsonar.projectName='Noel Secret en famille' \
   -Dsonar.sourceEncoding=UTF-8 \
   -Dsonar.host.url=http://localhost:8080 \
-  -Dsonar.token=<TOKEN> \
+  -Dsonar.token=sqa_8ce823998dd66d360c97d052f9b6b9eca4096002 \
   -Dsonar.tests=src/test/java \
   -Dsonar.java.coveragePlugin=jacoco \
   -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/jacoco.xml \

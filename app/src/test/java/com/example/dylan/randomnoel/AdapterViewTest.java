@@ -1,5 +1,17 @@
 package com.example.dylan.randomnoel;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.text.Editable;
@@ -22,18 +34,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AdapterViewTest {
@@ -196,8 +196,15 @@ public class AdapterViewTest {
 
             doNothing().when(adapter).notifyDataSetChanged();
 
+            // Création d'un mock TextWatcher qui sera retourné par getTag()
+            TextWatcher oldWatcher = mock(TextWatcher.class);
+            when(mockNomEditText.getTag()).thenReturn(oldWatcher);
+
             // Appel de getView
             adapter.getView(0, null, mockParent);
+
+            // Vérifie que removeTextChangedListener a été appelé avec l'ancien watcher
+            verify(mockNomEditText).removeTextChangedListener(oldWatcher);
 
             // Capture du listener du bouton
             verify(mockImageView).setOnClickListener(clickCaptor.capture());

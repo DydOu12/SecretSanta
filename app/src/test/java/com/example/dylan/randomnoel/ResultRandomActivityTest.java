@@ -1,5 +1,23 @@
 package com.example.dylan.randomnoel;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockConstruction;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,6 +29,13 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.arch.core.executor.ArchTaskExecutor;
+import androidx.arch.core.executor.TaskExecutor;
+import androidx.core.content.ContextCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.dylan.randomnoel.databinding.ActivityRandomBinding;
 import com.google.android.material.navigation.NavigationView;
@@ -28,30 +53,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.arch.core.executor.ArchTaskExecutor;
-import androidx.arch.core.executor.TaskExecutor;
-import androidx.core.content.ContextCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockConstruction;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ResultRandomActivityTest {
@@ -179,7 +180,8 @@ public class ResultRandomActivityTest {
 
             paramOnCreate();
             paramOnCreateWithNullBundle();
-            doReturn("").when(mockDatabaseHelper).getLastAssociation(anyString());
+            doReturn(new ArrayList<Nom>()).when(resultRandomActivitySpy).choixPossible(anyList(), any(Nom.class));
+            doNothing().when(resultRandomActivitySpy).finish();
 
             resultRandomActivitySpy.onCreate(null);
             verify(mockButton).setOnClickListener(any());
@@ -191,7 +193,8 @@ public class ResultRandomActivityTest {
     public void testOnCreateWithNullBundle() {
         paramOnCreate();
         paramOnCreateWithNullBundle();
-        doReturn(null).when(mockDatabaseHelper).getLastAssociation(anyString());
+        doReturn(new ArrayList<Nom>()).when(resultRandomActivitySpy).choixPossible(anyList(), any(Nom.class));
+        doNothing().when(resultRandomActivitySpy).finish();
 
         resultRandomActivitySpy.onCreate(null);
 

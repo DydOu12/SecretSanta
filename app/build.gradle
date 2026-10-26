@@ -4,7 +4,7 @@ plugins {
 }
 
 jacoco {
-    toolVersion = "0.8.11" // utilisez la version compatible avec votre JDK
+    toolVersion = "0.8.14" // utilisez la version compatible avec votre JDK
 }
 
 tasks.register('jacocoTestReport', JacocoReport) {
@@ -39,30 +39,32 @@ apply plugin: 'com.android.application'
 
 android {
 
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.example.dylan.randomnoel"
         minSdkVersion 28
-        targetSdk 34
+        targetSdk 35
         versionCode 1
         versionName "1.0"
     }
 
     buildTypes {
-        debug {
-            testCoverageEnabled true  // Activer la couverture pour les builds de debug
-        }
         release {
-            testCoverageEnabled true
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            enableUnitTestCoverage true
+            enableAndroidTestCoverage true
+        }
+        debug {
+            enableUnitTestCoverage true
+            enableAndroidTestCoverage true
         }
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
     }
 
     namespace 'com.example.dylan.randomnoel'
@@ -103,19 +105,19 @@ dependencies {
     //noinspection GradleCompatible
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.9.0'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.0'
-    implementation 'androidx.recyclerview:recyclerview:1.3.2'
-    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.9.4'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.4'
+    implementation 'androidx.recyclerview:recyclerview:1.4.0'
+    implementation 'com.google.android.material:material:1.13.0'
 
     testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.mockito:mockito-core:5.16.0' //Mockito
+    testImplementation 'org.mockito:mockito-core:5.20.0' //Mockito
     testImplementation 'org.mockito:mockito-inline:5.2.0' // Pour mock les class final
-    testImplementation 'org.jacoco:org.jacoco.core:0.8.11'
+    testImplementation 'org.jacoco:org.jacoco.core:0.8.14'
 
     // Pour l'utilisation de lombok
-    compileOnly 'org.projectlombok:lombok:1.18.28'
-    annotationProcessor 'org.projectlombok:lombok:1.18.28'
-    testCompileOnly 'org.projectlombok:lombok:1.18.28'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.28'
+    compileOnly 'org.projectlombok:lombok:1.18.42'
+    annotationProcessor 'org.projectlombok:lombok:1.18.42'
+    testCompileOnly 'org.projectlombok:lombok:1.18.42'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.42'
 }

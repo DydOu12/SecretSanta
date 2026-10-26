@@ -13,6 +13,13 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+
 import com.example.dylan.randomnoel.databinding.ActivityRandomBinding;
 import com.google.android.material.navigation.NavigationView;
 
@@ -25,13 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 
 /**
  * Created by Dylan on 09/04/2017.
@@ -317,13 +317,16 @@ public class ResultRandom extends AppCompatActivity implements View.OnClickListe
             super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == MY_PERMISSION_REQUEST_CODE_SEND_SMS) {
-            if (resultCode == RESULT_OK) {
-                // Do something with data (Result returned).
-                Toast.makeText(this, "Action OK", Toast.LENGTH_LONG).show();
-            } else if (resultCode == RESULT_CANCELED) {
-                Toast.makeText(this, "Action canceled", Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(this, "Action Failed", Toast.LENGTH_LONG).show();
+            switch(resultCode) {
+                case RESULT_OK:
+                    Toast.makeText(this, "Action OK", Toast.LENGTH_LONG).show();
+                    break;
+                case RESULT_CANCELED:
+                    Toast.makeText(this, "Action canceled", Toast.LENGTH_LONG).show();
+                    break;
+                default:
+                    Toast.makeText(this, "Action Failed", Toast.LENGTH_LONG).show();
+
             }
         }
     }

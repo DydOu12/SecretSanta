@@ -19,6 +19,13 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+
 import com.example.dylan.randomnoel.databinding.ActivityMainBinding;
 import com.google.android.material.navigation.NavigationView;
 
@@ -28,13 +35,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
 
@@ -160,15 +160,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Intent versResult = new Intent(MainActivity.this, ResultRandom.class);
         versResult.putParcelableArrayListExtra(LISTE_NOMS, (ArrayList<? extends Parcelable>) noms);
 
-        // Modifier les noms si nécessaires
-        for(int i = 0; i < listNoms.getChildCount(); ++i) {
-            View v = listNoms.getChildAt(i);
-            EditText eT = v.findViewById(R.id.nomContactInList);
-            String overrideName = eT.getText().toString();
-
-            noms.get(i).setName(overrideName);
-        }
-
         // permet d'associer le nombre de personnes par groupe et de savoir si l'association est
         // possible par la suite
         boolean possible = associationPossible(getNumberOfPersonByGroupe());
@@ -225,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void addContact() {
         Cursor c = getContentResolver().query(
                 ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
-                null, null, null);
+                null, null, ContactsContract.Contacts.DISPLAY_NAME + " ASC");
 
         if(c != null) {
             while (c.moveToNext()) {
@@ -363,6 +354,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
              noms.add(oceane);
              noms.add(dylan);
              noms.add(jp);
+
+             /*Nom Benoit = new Nom("Benoit", "0601336661", 1, Color.BLUE);
+             Nom Rose = new Nom("Rose", "0652653637", 1, Color.BLUE);
+             Nom Enzo = new Nom("Enzo", "0651843881", 1, Color.BLUE);
+             Nom Dorian = new Nom("Dorian", "0787969462", 1, Color.BLUE);
+             Nom Camille = new Nom("Camille", "0788357601", 2, Color.YELLOW);
+             Nom Nathan = new Nom("Nathan", "0652983682", 2, Color.YELLOW);
+             Nom Patrice = new Nom("Patrice", "0625736863", 2, Color.YELLOW);
+             Nom Laurence = new Nom("Laurence", "0668020737", 2, Color.YELLOW);
+             Nom Louis = new Nom("Louis", "0661879605", 3, Color.GREEN);
+             Nom Patricia = new Nom("Patricia", "0667404603", 3, Color.GREEN);
+             Nom Oceane = new Nom("Oceane", "0686705621", 3, Color.GREEN);
+             Nom Fanny = new Nom("Fanny", "0667709368", 3, Color.GREEN);
+             Nom Dylan = new Nom("Dylan", "0643495070", 4, Color.RED);
+             Nom Claudine = new Nom("Claudine", "0608782697", 4, Color.RED);
+
+             noms.add(Benoit);
+             noms.add(Rose);
+             noms.add(Enzo);
+             noms.add(Dorian);
+             noms.add(Camille);
+             noms.add(Nathan);
+             noms.add(Patrice);
+             noms.add(Laurence);
+             noms.add(Louis);
+             noms.add(Patricia);
+             noms.add(Oceane);
+             noms.add(Fanny);
+             noms.add(Dylan);
+             noms.add(Claudine);*/
 
              listNoms.setAdapter(monAdapter);
          }

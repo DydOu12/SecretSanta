@@ -1,5 +1,5 @@
 plugins {
-    id "org.sonarqube" version "7.5.0.8588"
+    alias libs.plugins.sonarqube
     id 'jacoco'
 }
 
@@ -39,12 +39,12 @@ apply plugin: 'com.android.application'
 
 android {
 
-    compileSdk 35
+    compileSdk 37
 
     defaultConfig {
         applicationId "com.example.dylan.randomnoel"
         minSdkVersion 28
-        targetSdk 35
+        targetSdk 37
         versionCode 1
         versionName "1.0"
     }
@@ -102,22 +102,21 @@ dependencies {
     implementation files('libs/additionnal.jar')
     implementation files('libs/mail.jar')
 
-    //noinspection GradleCompatible
-    implementation 'com.android.support:appcompat-v7:28.0.0'
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.9.4'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.4'
-    implementation 'androidx.recyclerview:recyclerview:1.4.0'
-    implementation 'com.google.android.material:material:1.13.0'
+    implementation libs.androidx.appcompat
+    implementation libs.androidx.legacy.support.v4
+    implementation libs.androidx.lifecycle.livedata.ktx
+    implementation libs.androidx.lifecycle.viewmodel.ktx
+    implementation libs.androidx.recyclerview
+    implementation libs.material
 
-    testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.mockito:mockito-core:5.20.0' //Mockito
-    testImplementation 'org.mockito:mockito-inline:5.2.0' // Pour mock les class final
-    testImplementation 'org.jacoco:org.jacoco.core:0.8.14'
+    testImplementation libs.junit
+    testImplementation libs.mockito.core //Mockito
+    testImplementation libs.mockito.inline // Pour mock les class final
+    testImplementation libs.org.jacoco.core
 
     // Pour l'utilisation de lombok
-    compileOnly 'org.projectlombok:lombok:1.18.42'
-    annotationProcessor 'org.projectlombok:lombok:1.18.42'
-    testCompileOnly 'org.projectlombok:lombok:1.18.42'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.42'
+    compileOnly libs.lombok
+    annotationProcessor libs.lombok
+    testCompileOnly libs.lombok
+    testAnnotationProcessor libs.lombok
 }

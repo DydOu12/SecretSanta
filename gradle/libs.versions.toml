@@ -1,0 +1,30 @@
+[versions]
+appcompat = "1.8.0"
+gradle = "9.4.1"
+junit = "4.13.2"
+legacySupportV4 = "1.0.0"
+lifecycle = "2.11.0"
+lombok = "1.18.48"
+material = "1.14.0"
+mockitoCore = "5.24.0"
+mockitoInline = "5.2.0"
+orgJacocoCore = "0.8.16"
+recyclerview = "1.4.0"
+sonarqube = "7.5.0.8588"
+
+[libraries]
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+androidx-legacy-support-v4 = { group = "androidx.legacy", name = "legacy-support-v4", version.ref = "legacySupportV4" }
+androidx-lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycle" }
+androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
+androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
+gradle = { group = "com.android.tools.build", name = "gradle", version.ref = "gradle" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+lombok = { group = "org.projectlombok", name = "lombok", version.ref = "lombok" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockitoCore" }
+mockito-inline = { group = "org.mockito", name = "mockito-inline", version.ref = "mockitoInline" }
+org-jacoco-core = { group = "org.jacoco", name = "org.jacoco.core", version.ref = "orgJacocoCore" }
+
+[plugins]
+sonarqube = { id = "org.sonarqube", version.ref = "sonarqube" }

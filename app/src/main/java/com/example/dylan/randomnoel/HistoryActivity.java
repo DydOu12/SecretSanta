@@ -108,9 +108,8 @@ public class HistoryActivity extends AppCompatActivity implements NavigationView
         // Load all distinct dates from the database
         List<String> allDates = databaseHelper.getAllDates();
 
-        // Create an ArrayAdapter using the string array and a default spinner layout
+        // Use the app's high-contrast spinner layouts.
         ArrayAdapter<String> spinnerAdapter = getArrayAdapter(allDates);
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         // Apply the adapter to the spinner
         dateSpinner.setAdapter(spinnerAdapter);
@@ -131,7 +130,10 @@ public class HistoryActivity extends AppCompatActivity implements NavigationView
     }
 
     protected ArrayAdapter<String> getArrayAdapter(List<String> allDates) {
-        return new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, allDates);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this, R.layout.spinner_selected_item, allDates);
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        return adapter;
     }
 
     protected void loadHistoryByDate(String date) {

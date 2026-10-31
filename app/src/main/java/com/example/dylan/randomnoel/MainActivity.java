@@ -5,7 +5,6 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.provider.ContactsContract;
@@ -29,7 +28,6 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import com.example.dylan.randomnoel.databinding.ActivityMainBinding;
 import com.google.android.material.navigation.NavigationView;
 
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -50,8 +48,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected ListView listNoms;
 
     protected int remainingClickEasterEgg = 5;
-
-    private final SecureRandom r = new SecureRandom();
 
     protected static final String LISTE_NOMS = "listeNoms";
 
@@ -240,8 +236,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     protected ArrayAdapter<Nom> createArrayAdapter(List<Nom> contacts) {
-        return new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_dropdown_item, contacts);
+        ArrayAdapter<Nom> adapter = new ArrayAdapter<>(
+                this, R.layout.spinner_selected_item, contacts);
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        return adapter;
     }
 
     /**
@@ -303,6 +301,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             .orElse(null);
     }
 
+    protected int getGroupColor(int group) {
+        int[] palette = {
+                0xFF1F5A43, // Forest green
+                0xFF8E3038, // Burgundy
+                0xFFB58A42, // Soft gold
+                0xFF67527A  // Muted plum
+        };
+        return palette[Math.floorMod(group - 1, palette.length)];
+    }
+
     protected void egg() {
          --remainingClickEasterEgg;
 
@@ -310,29 +318,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Toast.makeText(MainActivity.this, remainingClickEasterEgg + " clics avant easter egg :)", Toast.LENGTH_SHORT).show();
 
          if(remainingClickEasterEgg == 0) {
-             Nom helene = new Nom("Hélène", "0677693045", 1, Color.BLUE);
-             Nom laurent = new Nom("Laurent", "0631352000", 1, Color.BLUE);
-             Nom manon = new Nom("Manon", "0782384810", 1, Color.BLUE);
-             Nom gabin = new Nom("Gabin", "0695012599", 1, Color.BLUE);
-             Nom elie = new Nom("Elie", "0768497874", 1, Color.BLUE);
-             Nom melissa = new Nom("Melissa", "0761549875", 1, Color.BLUE);
+             Nom helene = new Nom("Hélène", "0677693045", 1, getGroupColor(1));
+             Nom laurent = new Nom("Laurent", "0631352000", 1, getGroupColor(1));
+             Nom manon = new Nom("Manon", "0782384810", 1, getGroupColor(1));
+             Nom gabin = new Nom("Gabin", "0695012599", 1, getGroupColor(1));
+             Nom elie = new Nom("Elie", "0768497874", 1, getGroupColor(1));
+             Nom melissa = new Nom("Melissa", "0761549875", 1, getGroupColor(1));
 
-             Nom alain = new Nom("Alain", "0788590358", 2, Color.GREEN);
-             Nom bea = new Nom("Béa", "0683089227", 2, Color.GREEN);
-             Nom matthieu = new Nom("Matthieu", "0647746240", 2, Color.GREEN);
-             Nom francois = new Nom("François", "0635467242", 2, Color.GREEN);
-             Nom aurelie = new Nom("Aurelie", "0614283241", 2, Color.GREEN);
-             Nom mariel = new Nom("Mariel", "0687586357", 2, Color.GREEN);
+             Nom alain = new Nom("Alain", "0788590358", 2, getGroupColor(2));
+             Nom bea = new Nom("Béa", "0683089227", 2, getGroupColor(2));
+             Nom matthieu = new Nom("Matthieu", "0647746240", 2, getGroupColor(2));
+             Nom francois = new Nom("François", "0635467242", 2, getGroupColor(2));
+             Nom aurelie = new Nom("Aurelie", "0614283241", 2, getGroupColor(2));
+             Nom mariel = new Nom("Mariel", "0687586357", 2, getGroupColor(2));
 
-             Nom babeth = new Nom("Babeth", "0621224549", 3, Color.RED);
-             Nom jacques = new Nom("Jacques", "0676999624", 3, Color.RED);
-             Nom sarah = new Nom("Sarah", "0616579051", 3, Color.RED);
-             Nom samuel = new Nom("Samuel", "0644236802", 3, Color.RED);
-             Nom paul = new Nom("Paul", "0687258509", 3, Color.RED);
+             Nom babeth = new Nom("Babeth", "0621224549", 3, getGroupColor(3));
+             Nom jacques = new Nom("Jacques", "0676999624", 3, getGroupColor(3));
+             Nom sarah = new Nom("Sarah", "0616579051", 3, getGroupColor(3));
+             Nom samuel = new Nom("Samuel", "0644236802", 3, getGroupColor(3));
+             Nom paul = new Nom("Paul", "0687258509", 3, getGroupColor(3));
 
-             Nom dylan = new Nom("Dylan", "0643495070", 4, Color.YELLOW);
-             Nom oceane = new Nom("Oceane", "0686705621", 4, Color.YELLOW);
-             Nom jp = new Nom("Jean-Pierre", "0632895613", 4, Color.YELLOW);
+             Nom dylan = new Nom("Dylan", "0643495070", 4, getGroupColor(4));
+             Nom oceane = new Nom("Oceane", "0686705621", 4, getGroupColor(4));
+             Nom jp = new Nom("Jean-Pierre", "0632895613", 4, getGroupColor(4));
 
              noms.add(helene);
              noms.add(laurent);
@@ -406,9 +414,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 Integer couleur = getCouleurIfGroupePresent(i);
 
-                // pour changer la couleur
+                // Reuse a small, coordinated palette instead of a random saturated color.
                 if (couleur == null) {
-                    couleur = Color.rgb(r.nextInt(256), r.nextInt(256), r.nextInt(256));
+                    couleur = getGroupColor(i);
                 }
 
                 n.setCouleur(couleur);

@@ -34,6 +34,7 @@ import android.provider.ContactsContract;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -360,6 +361,10 @@ public class MainActivityTest {
 
         Spinner mockSpinner = mock(Spinner.class);
         doReturn(mockSpinner).when(mainActivitySpy).findViewById(R.id.nomContact);
+
+        @SuppressWarnings("unchecked")
+        ArrayAdapter<Nom> mockAdapter = mock(ArrayAdapter.class);
+        doReturn(mockAdapter).when(mainActivitySpy).createArrayAdapter(any());
 
         when(mockCursor.moveToNext()).thenReturn(true, true, false); // Return true twice, then false
         when(mockCursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)).thenReturn(0);

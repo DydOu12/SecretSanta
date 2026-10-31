@@ -25,7 +25,7 @@
             android:layout_marginEnd="12dp"
             android:contentDescription="@string/history_drawer"
             android:src="@drawable/ic_history"
-            app:tint="?attr/colorSecondary" />
+            app:tint="?attr/colorPrimary" />
 
         <TextView
             android:id="@+id/textViewHistoryItem"

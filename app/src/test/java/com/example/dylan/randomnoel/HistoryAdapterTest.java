@@ -2,10 +2,10 @@ package com.example.dylan.randomnoel;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.dylan.randomnoel.databinding.ItemHistoryBinding;
+import com.google.android.material.card.MaterialCardView;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +44,7 @@ public class HistoryAdapterTest {
     private TextView mockTextView;
 
     @Mock
-    private LinearLayout mockLinearLayout;
+    private MaterialCardView mockCardView;
 
     private HistoryAdapter adapter;
 
@@ -79,7 +79,7 @@ public class HistoryAdapterTest {
                          ItemHistoryBinding.inflate(any(LayoutInflater.class), any(ViewGroup.class), anyBoolean()))
                         .thenReturn(mockItemHistoryBinding);
 
-            doReturn(mockLinearLayout).when(mockItemHistoryBinding).getRoot();
+            doReturn(mockCardView).when(mockItemHistoryBinding).getRoot();
 
             HistoryAdapter.HistoryViewHolder viewHolder = adapter.onCreateViewHolder(mockViewGroup, 0);
             assertNotNull(viewHolder);
@@ -89,7 +89,7 @@ public class HistoryAdapterTest {
     @Test
     public void testOnBindViewHolder() {
         // Création d'un ViewHolder mocké avec TextView simulé
-        doReturn(mockLinearLayout).when(mockItemHistoryBinding).getRoot();
+        doReturn(mockCardView).when(mockItemHistoryBinding).getRoot();
 
         HistoryAdapter.HistoryViewHolder mockViewHolder = spy(new HistoryAdapter.HistoryViewHolder(mockItemHistoryBinding));
         doReturn(mockTextView).when(mockViewHolder).getTextViewHistoryItem();

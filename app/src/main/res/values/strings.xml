@@ -1,16 +1,17 @@
 <resources>
-    <string name="app_name">RandomNoel</string>
+    <string name="app_name">Random Noël</string>
     <string name="contact_liste_groupe">%1$d - %2$s - %3$s - %4$d</string>
     <string name="add">Ajouter</string>
-    <string name="random">Random</string>
-    <string name="send">Envoyer SMS</string>
-    <string name="suppr">Suppr</string>
+    <string name="add_participant_title">Ajouter un participant</string>
+    <string name="random">Lancer le tirage au sort !</string>
+    <string name="send">Envoyer les SMS aux lutins</string>
+    <string name="suppr">Supprimer</string>
     <string name="num_group">Numéro - groupe</string>
     <string name="idL">1</string>
     <string name="history_item">History Item</string>
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="placeholder_groupe">n° groupe</string>
-    <string name="main_activity_drawer">Main Activity</string>
-    <string name="history_drawer">History</string>
+    <string name="navigation_drawer_open">Ouvrir le menu</string>
+    <string name="navigation_drawer_close">Fermer le menu</string>
+    <string name="placeholder_groupe">Groupe n°</string>
+    <string name="main_activity_drawer">Accueil - Tirage Noël</string>
+    <string name="history_drawer">Historique des tirages</string>
 </resources>

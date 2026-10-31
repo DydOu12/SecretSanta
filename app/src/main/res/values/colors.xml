@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <!-- Christmas Material 3 Color Palette -->
+    <color name="colorPrimary">#B71C1C</color>
+    <color name="colorPrimaryDark">#8C0000</color>
+    <color name="colorAccent">#2E7D32</color>
+    <color name="colorSecondary">#1B5E20</color>
+    <color name="colorBackground">#FAFAFA</color>
+
+    <color name="christmas_red_primary">#B71C1C</color>
+    <color name="christmas_red_light">#FFCDD2</color>
+    <color name="christmas_green_secondary">#1B5E20</color>
+    <color name="christmas_green_light">#C8E6C9</color>
+    <color name="christmas_gold">#FBC02D</color>
+    <color name="christmas_gold_light">#FFF9C4</color>
+
+    <color name="card_background">#FFFFFF</color>
+    <color name="card_stroke">#E0E0E0</color>
+    <color name="background_snow">#FAFAFA</color>
 </resources>
